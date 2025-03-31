@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import String, ForeignKey, Text, TIMESTAMP, Numeric
+from sqlalchemy import String, ForeignKey, Text, TIMESTAMP, Numeric , Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 
@@ -13,6 +13,7 @@ class User(db.Model):
     username: Mapped[str] = mapped_column(String(100), unique=True)
     email: Mapped[str] = mapped_column(String(100), unique=True)
     password: Mapped[str] = mapped_column(String(255))
+    is_active: Mapped[bool] = mapped_column(Boolean(), nullable=False)
     created_date: Mapped[datetime] = mapped_column(TIMESTAMP)
     expired_date: Mapped[datetime] = mapped_column(TIMESTAMP)
     staff_number: Mapped[int] = mapped_column()
