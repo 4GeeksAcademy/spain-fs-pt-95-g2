@@ -1,5 +1,6 @@
 from flask import  request, jsonify, Blueprint
-from api.models import db, Product 
+from api.models import db, Product , Inventory
+from flask_jwt_extended import jwt_required, get_jwt_identity 
 from flask_cors import CORS
 
 api = Blueprint('api', __name__)
@@ -65,4 +66,72 @@ def delete_product(id):
     db.session.commit()
     return jsonify({"message": "Producto eliminado"}), 200
 
+##############
+# INVENTORY
+##############
 
+@api.route("/inventories", methods=["GET"])
+@jwt_required()
+def get_inventories():
+    inventories = db.session.query(Inventory).all()
+    return jsonify( [i.serialize() for i in inventories] ) , 200
+
+@api.route("/inventories/<int:id>", methods=["GET"])
+@jwt_required()
+def get_inventory(id):
+    inventory = db.session.get( Inventory , id )
+    if not inventory:
+        return jsonify( {"error": "Inventario no encontrado"} ), 404
+    return jsonify( inventory.serialize() ), 200
+
+@api.route("/inventories", methods=["POST"])
+@jwt_required()
+def create_inventory():
+    data = request.get_json()
+    user_id = get_jwt_identity()
+
+    try:
+        new_inventory = Inventory(
+            name = data["name"],
+            cif = data["cif"],
+            location = data["location"],
+            created_at = data.get("created_at"),
+            sector = data["sector"],
+            owner_id = user_id
+        )
+        db.session.add( new_inventory )
+        db.session.commit()
+        return jsonify( new_inventory.serialize() ), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify( {"error": str(e)}), 400
+    
+@api.route("/inventories/<int:id>", methods=["PUT"])
+@jwt_required()
+def update_inventory(id):
+    inventory = db.session.get(Inventory , id)
+    if not inventory:
+        return jsonify( {"error": "Inventario no encontrado"}), 404
+
+    data = request.get_json()
+    try:
+        inventory.name = data.get("name", inventory.name)
+        inventory.cif = data.get("cif", inventory.cif)
+        inventory.location = data.get("location", inventory.location)
+        inventory.sector = data.get("sector", inventory.sector)
+        db.session.commit()
+        return jsonify(inventory.serialize()), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify( {"error": str(e)} ), 400
+    
+@api.route("/inventories/<int:id>", methods=["DELETE"])
+@jwt_required()
+def delete_inventory(id):
+    inventory = db.session.get(Inventory, id)
+    if not inventory:
+        return jsonify( {"error": "Inventario no encontrado"} ), 404
+
+    db.session.delete( inventory )
+    db.session.commit()
+    return jsonify( {"message": "Inventario eliminado"} ), 200
