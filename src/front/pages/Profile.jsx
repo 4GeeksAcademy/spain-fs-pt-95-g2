@@ -24,7 +24,7 @@ const Profile = () => {
 
   return (
     <div className="profile-container">
-      <h1 className="titulo">User Profile</h1>
+      <h1 className="title">User Profile</h1>
       <div className="card">
         <p><strong>User Name:</strong> {user.username}</p>
         <p><strong>Email:</strong> {user.email}</p>
