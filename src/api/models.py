@@ -9,7 +9,7 @@ db = SQLAlchemy()
 class User(db.Model):
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id_user: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(String(100), unique=True)
     email: Mapped[str] = mapped_column(String(100), unique=True)
     password: Mapped[str] = mapped_column(String(255))
@@ -22,7 +22,7 @@ class User(db.Model):
 
     def serialize(self):
         return {
-            "id": self.id,
+            "id_user": self.id,
             "username": self.username,
             "email": self.email,
             "created_date": self.created_date,
@@ -34,14 +34,14 @@ class User(db.Model):
 class Inventory(db.Model):
     __tablename__ = "inventories"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id_inventory: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(100))
     cif: Mapped[str] = mapped_column(String(10))
     location: Mapped[str] = mapped_column(String(100))
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP, default=datetime.now)
     sector: Mapped[str] = mapped_column(String(100))
-    owner_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    owner_id: Mapped[int] = mapped_column(ForeignKey("users.id_user"))
 
     products: Mapped[list["Product"]] = relationship(
         back_populates="inventory")
@@ -53,7 +53,7 @@ class Inventory(db.Model):
 
     def serialize(self):
         return {
-            "id": self.id,
+            "id_inventory": self.id,
             "name": self.name,
             "cif": self.cif,
             "location": self.location,
@@ -67,9 +67,9 @@ class UserInventory(db.Model):
     __tablename__ = "user_inventory"
 
     users_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id"), primary_key=True)
+        ForeignKey("users.id_user"), primary_key=True)
     inventories_id: Mapped[int] = mapped_column(
-        ForeignKey("inventories.id"), primary_key=True)
+        ForeignKey("inventories.id_inventory"), primary_key=True)
     permissions: Mapped[int] = mapped_column(default=0)
 
     user: Mapped["User"] = relationship(back_populates="user_inventories")
@@ -87,7 +87,7 @@ class UserInventory(db.Model):
 class Category(db.Model):
     __tablename__ = "category"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id_category: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(100))
     description: Mapped[str] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(
@@ -97,7 +97,7 @@ class Category(db.Model):
 
     def serialize(self):
         return {
-            "id": self.id,
+            "id_category": self.id,
             "name": self.name,
             "description": self.description,
             "created_at": self.created_at
@@ -107,28 +107,30 @@ class Category(db.Model):
 class Product(db.Model):
     __tablename__ = "products"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id_product: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(100))
     price: Mapped[float] = mapped_column(Numeric(10, 2))
     quantity: Mapped[int] = mapped_column()
-    category_id: Mapped[int] = mapped_column(ForeignKey("category.id"))
-    inventories_id: Mapped[int] = mapped_column(ForeignKey("inventories.id"))
+    image_url: Mapped[str] = mapped_column(String(255), nullable=True)
+    category_id: Mapped[int] = mapped_column(ForeignKey("category.id_category"))
+    inventories_id: Mapped[int] = mapped_column(ForeignKey("inventories.id_inventory"))
 
     category: Mapped["Category"] = relationship(back_populates="products")
     inventory: Mapped["Inventory"] = relationship(back_populates="products")
     transactions: Mapped[list["Transaction"]
                          ] = relationship(back_populates="product")
-    detalied_orders: Mapped[list["DetaliedOrder"]
+    detailed_orders: Mapped[list["DetailedOrder"]
                             ] = relationship(back_populates="product")
     attributes: Mapped[list["ProductAttribute"]
                        ] = relationship(back_populates="product")
 
     def serialize(self):
         return {
-            "id": self.id,
+            "id_product": self.id,
             "name": self.name,
             "price": float(self.price),
             "quantity": self.quantity,
+            "image_url": self.image_url, 
             "category_id": self.category_id,
             "inventories_id": self.inventories_id
         }
@@ -137,12 +139,12 @@ class Product(db.Model):
 class Transaction(db.Model):
     __tablename__ = "transactions"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    product_id: Mapped[int] = mapped_column(ForeignKey("products.id"))
-    inventories_id: Mapped[int] = mapped_column(ForeignKey("inventories.id"))
+    id_transaction: Mapped[int] = mapped_column(primary_key=True)
+    product_id: Mapped[int] = mapped_column(ForeignKey("products.id_product"))
+    inventories_id: Mapped[int] = mapped_column(ForeignKey("inventories.id_inventory"))
     quantity: Mapped[int] = mapped_column()
     transaction_type: Mapped[str] = mapped_column(String(50))
-    date_: Mapped[datetime] = mapped_column(TIMESTAMP, default=datetime.now)
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=datetime.now)
 
     product: Mapped["Product"] = relationship(back_populates="transactions")
     inventory: Mapped["Inventory"] = relationship(
@@ -150,7 +152,7 @@ class Transaction(db.Model):
 
     def serialize(self):
         return {
-            "id": self.id,
+            "id_transaction": self.id,
             "product_id": self.product_id,
             "inventories_id": self.inventories_id,
             "quantity": self.quantity,
@@ -162,7 +164,7 @@ class Transaction(db.Model):
 class Supplier(db.Model):
     __tablename__ = "suppliers"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id_supplier: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(100))
     contact_name: Mapped[str] = mapped_column(String(100))
     email: Mapped[str] = mapped_column(String(100))
@@ -175,7 +177,7 @@ class Supplier(db.Model):
 
     def serialize(self):
         return {
-            "id": self.id,
+            "id_supplier": self.id,
             "name": self.name,
             "contact_name": self.contact_name,
             "email": self.email,
@@ -188,10 +190,10 @@ class Supplier(db.Model):
 class Order(db.Model):
     __tablename__ = "orders"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    inventories_id: Mapped[int] = mapped_column(ForeignKey("inventories.id"))
-    supplier_id: Mapped[int] = mapped_column(ForeignKey("suppliers.id"))
-    status: Mapped[str] = mapped_column(String(50), default="pendiente")
+    id_order: Mapped[int] = mapped_column(primary_key=True)
+    inventories_id: Mapped[int] = mapped_column(ForeignKey("inventories.id_inventory"))
+    supplier_id: Mapped[int] = mapped_column(ForeignKey("suppliers.id_supplier"))
+    status: Mapped[int] = mapped_column(default=0)
     total: Mapped[float] = mapped_column(Numeric(10, 2))
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP, default=datetime.now)
@@ -199,12 +201,12 @@ class Order(db.Model):
 
     inventory: Mapped["Inventory"] = relationship(back_populates="orders")
     supplier: Mapped["Supplier"] = relationship(back_populates="orders")
-    detalied_orders: Mapped[list["DetaliedOrder"]
+    detailed_orders: Mapped[list["DetailedOrder"]
                             ] = relationship(back_populates="order")
 
     def serialize(self):
         return {
-            "id": self.id,
+            "id_order": self.id,
             "inventories_id": self.inventories_id,
             "supplier_id": self.supplier_id,
             "status": self.status,
@@ -214,21 +216,21 @@ class Order(db.Model):
         }
 
 
-class DetaliedOrder(db.Model):
-    __tablename__ = "detaliedOrders"
+class DetailedOrder(db.Model):
+    __tablename__ = "detailedOrders"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    order_id: Mapped[int] = mapped_column(ForeignKey("orders.id"))
-    product_id: Mapped[int] = mapped_column(ForeignKey("products.id"))
+    id_detail: Mapped[int] = mapped_column(primary_key=True)
+    order_id: Mapped[int] = mapped_column(ForeignKey("orders.id_order"))
+    product_id: Mapped[int] = mapped_column(ForeignKey("products.id_product"))
     quantity: Mapped[int] = mapped_column()
     unit_price: Mapped[float] = mapped_column(Numeric(10, 2))
 
-    order: Mapped["Order"] = relationship(back_populates="detalied_orders")
-    product: Mapped["Product"] = relationship(back_populates="detalied_orders")
+    order: Mapped["Order"] = relationship(back_populates="detailed_orders")
+    product: Mapped["Product"] = relationship(back_populates="detailed_orders")
 
     def serialize(self):
         return {
-            "id": self.id,
+            "id_detail": self.id,
             "order_id": self.order_id,
             "product_id": self.product_id,
             "quantity": self.quantity,
@@ -239,7 +241,7 @@ class DetaliedOrder(db.Model):
 class Attribute(db.Model):
     __tablename__ = "attributes"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id_attribute: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(100))
 
     product_attributes: Mapped[list["ProductAttribute"]
@@ -247,7 +249,7 @@ class Attribute(db.Model):
 
     def serialize(self):
         return {
-            "id": self.id,
+            "id_attribute": self.id,
             "name": self.name
         }
 
@@ -256,9 +258,9 @@ class ProductAttribute(db.Model):
     __tablename__ = "product_attributes"
 
     product_id: Mapped[int] = mapped_column(
-        ForeignKey("products.id"), primary_key=True)
+        ForeignKey("products.id_product"), primary_key=True)
     attribute_id: Mapped[int] = mapped_column(
-        ForeignKey("attributes.id"), primary_key=True)
+        ForeignKey("attributes.id_attribute"), primary_key=True)
     value: Mapped[str] = mapped_column(String(100))
 
     product: Mapped["Product"] = relationship(back_populates="attributes")
