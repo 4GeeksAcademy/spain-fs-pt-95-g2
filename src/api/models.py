@@ -14,7 +14,7 @@ class User(db.Model):
     email: Mapped[str] = mapped_column(String(100), unique=True)
     password: Mapped[str] = mapped_column(String(255))
     is_active: Mapped[bool] = mapped_column(Boolean(), nullable=False)
-    created_date: Mapped[datetime] = mapped_column(TIMESTAMP)
+    created_date: Mapped[datetime] = mapped_column(TIMESTAMP, default=datetime.now)
     expired_date: Mapped[datetime] = mapped_column(TIMESTAMP)
     staff_number: Mapped[int] = mapped_column()
 
