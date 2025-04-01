@@ -21,9 +21,9 @@ api = Blueprint('api', __name__)
 CORS(api)
 
 def hash_password(password):
-    password = password.encode('utf-8')
+    password = password.encode("utf-8")
     password = bcrypt.hashpw(password, bcrypt.gensalt())
-    password = password.decode('utf-8')
+    password = password.decode("utf-8")
     return password
 
 def send_email(to, url):
@@ -59,7 +59,7 @@ def handle_signup():
     response_body = {}
     if not request.method == "POST":
         response_body["error"] = "Method not allowed."
-        return response_body, 400
+        return response_body, 405
     
     data = request.get_json(silent=True)
     if not data:
@@ -74,7 +74,7 @@ def handle_signup():
     user = db.session.scalars(db.select(User).filter(User.email.ilike(data["email"]))).first()
     if user:
         response_body["message"] = "This user already exists"
-        return response_body, 400
+        return response_body, 409
     user = User(
         username = data["username"],
         email = data["email"].lower(),
@@ -86,15 +86,15 @@ def handle_signup():
     db.session.add(user)
     db.session.commit()
     response_body["message"] = "User created successfully!"
-    return response_body, 200
+    return response_body, 201
 
 
 @api.route("/login", methods=["POST"])
 def handle_login():
     response_body = {}
-    if not request.method == 'POST':
+    if not request.method == "POST":
         response_body["error"] = "Method not allowed."
-        return response_body, 400
+        return response_body, 405
     
     data = request.get_json(silent=True)
     if not data:
@@ -108,15 +108,15 @@ def handle_login():
             return response_body, 400
         
     user = db.session.scalars(db.select(User).filter(User.email.ilike(data["email"]))).first()
-    if not user or not bcrypt.checkpw(data["password"].encode('utf-8'), user.password.encode('utf-8')):
+    if not user or not bcrypt.checkpw(data["password"].encode('utf-8'), user.password.encode("utf-8")):
         response_body["error"] = "Invalid email or password"
-        return response_body, 400
+        return response_body, 401
     if not user.is_active:
         response_body["error"] = "User account is inactive"
-        return response_body, 400
+        return response_body, 403
     if user.expired_date and user.expired_date < datetime.now():
         response_body["error"] = "User account has expired"
-        return response_body, 400
+        return response_body, 403
     
     access_token = create_access_token(identity=user.id)
     response_body = {
@@ -133,9 +133,9 @@ def handlle_users():
     response_body = {}
     if not request.method == "GET":
         response_body["error"] = "Method not allowed."
-        return response_body, 400
+        return response_body, 405
     
-    permissions_filter = request.args.get('permissions')
+    permissions_filter = request.args.get("permissions")
     query = db.select(User)
 
     if permissions_filter:
@@ -156,12 +156,12 @@ def handle_users_by_id(id_user):
     response_body = {}
     if not request.method == "GET":
         response_body["error"] = "Method not allowed."
-        return response_body, 400
+        return response_body, 405
     
     user = db.session.execute(db.select(User).where(User.id == id_user)).scalar()
     if not user:
-        response_body["message"] = {f"{id_user} not found."}
-        return response_body, 200
+        response_body["error"] = {f"{id_user} not found."}
+        return response_body, 404
     
     response_body["result"] = user.serialize()
     response_body["message"] = {f"{id_user} user"}
@@ -203,13 +203,13 @@ def handle_reset_password(token):
     
     data = serializer.loads(token, salt="password-reset", max_age=300)
     if not data:
-        response_body["error"] = "Invalid token"
-        return response_body, 400
+        response_body["error"] = "Invalid or expired token"
+        return response_body, 401
     
     user = User.query.filter_by(email=data["email"]).first()
     if not user:
         response_body["error"] = "User not found"
-        return response_body, 400
+        return response_body, 404
     
     new_password = request.json.get("new_password")
     if not new_password:
