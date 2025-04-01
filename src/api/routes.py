@@ -9,7 +9,11 @@ from flask_cors import CORS
 from typing import Optional
 from sqlalchemy import select
 from flask_jwt_extended import create_access_token
+from app import serializer
 import bcrypt
+import smtplib
+from email.mime.text import MIMEText
+import os
 
 api = Blueprint('api', __name__)
 
@@ -22,11 +26,39 @@ def hash_password(password):
     password = password.decode('utf-8')
     return password
 
+def send_email(to, url):
+    SMTP_SERVER = "smtp.gmail.com"
+    SMTP_PORT = 587
+    EMAIL_FROM = os.getenv("EMAIL_USER")
+    EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
+
+    message = f"""
+        <p>¡Hi!</p>
+        <p>You have requested to reset your password
+        Click <a href="{url}">here</a> to continue</p>
+        <p><i>If you didn't request this, please ignore this email</i></p>
+        """
+
+    msg = MIMEText(message, "html")
+    msg["Subject"] = "Password reset"
+    msg["From"] = EMAIL_FROM
+    msg["To"] = to
+
+    try:
+        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+            server.starttls()
+            server.login(EMAIL_FROM, EMAIL_PASSWORD)
+            server.sendmail(EMAIL_FROM, [to], msg.as_string())
+        return True
+    except Exception as e:
+        print(f"Error sending email: {e}")
+        return False
+
 @api.route("/signup", methods=["POST"])
 def handle_signup():
     response_body = {}
     if not request.method == "POST":
-        response_body["message"] = "Method not allowed."
+        response_body["error"] = "Method not allowed."
         return response_body, 400
     
     data = request.get_json(silent=True)
@@ -56,13 +88,12 @@ def handle_signup():
     response_body["message"] = "User created successfully!"
     return response_body, 200
 
-    
 
 @api.route("/login", methods=["POST"])
 def handle_login():
     response_body = {}
     if not request.method == 'POST':
-        response_body["message"] = "Method not allowed."
+        response_body["error"] = "Method not allowed."
         return response_body, 400
     
     data = request.get_json(silent=True)
@@ -101,7 +132,7 @@ def handle_login():
 def handlle_users():
     response_body = {}
     if not request.method == "GET":
-        response_body["message"] = "Method not allowed."
+        response_body["error"] = "Method not allowed."
         return response_body, 400
     
     permissions_filter = request.args.get('permissions')
@@ -124,7 +155,7 @@ def handlle_users():
 def handle_users_by_id(id_user):
     response_body = {}
     if not request.method == "GET":
-        response_body["message"] = "Method not allowed."
+        response_body["error"] = "Method not allowed."
         return response_body, 400
     
     user = db.session.execute(db.select(User).where(User.id == id_user)).scalar()
@@ -135,3 +166,59 @@ def handle_users_by_id(id_user):
     response_body["result"] = user.serialize()
     response_body["message"] = {f"{id_user} user"}
     return response_body, 200
+
+@api.route("/forgot-password", methods=["POST"])
+def handle_forgot_password():
+    response_body = {}
+    if not request.method == "POST":
+        response_body["error"] = "Method not allowed."
+        return response_body, 400
+    
+    data = request.get_json(silent=True)
+    if not data:
+        response_body["error"] = "Invalid or empty JSON"
+        return response_body, 400
+
+    email = data["email"].strip().lower()
+    user = db.session.scalars(db.select(User).filter(User.email.ilike(data["email"]))).first()
+    if not user:
+        response_body["message"] = "If the email exists, you should have received the recovery message."
+        return response_body, 200
+
+    token = serializer.dumps(email, salt="password-reset", expires_in=300)
+    reset_url = url_for("api.handle_reset_password", token=token, _external=True)
+    send_email(
+        to = user.email,
+        url = reset_url
+    )
+    response_body["message"] = "Recovery email sent"
+    return response_body, 200
+
+@api.route("/reset-password/<token>", methods=["POST"])
+def handle_reset_password(token):
+    response_body = {}
+    if not request.method == "POST":
+        response_body["error"] = "Method not allowed."
+        return response_body, 400
+    
+    data = serializer.loads(token, salt="password-reset", max_age=300)
+    if not data:
+        response_body["error"] = "Invalid token"
+        return response_body, 400
+    
+    user = User.query.filter_by(email=data["email"]).first()
+    if not user:
+        response_body["error"] = "User not found"
+        return response_body, 400
+    
+    new_password = request.json.get("new_password")
+    if not new_password:
+        response_body["error"] = "Invalid new password"
+        return response_body, 400
+    user.password = hash_password(new_password)
+
+    db.session.add(user)
+    db.session.commit()
+    response_body["message"] = "Password reset succesfully"
+    return response_body, 200
+    

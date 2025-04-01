@@ -12,6 +12,7 @@ from api.admin import setup_admin
 from api.commands import setup_commands
 from datetime import timedelta
 from flask_jwt_extended import JWTManager
+from itsdangerous import URLSafeTimedSerializer
 
 # from models import Person
 
@@ -27,6 +28,12 @@ app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=24)
 if not app.config["JWT_SECRET_KEY"]:
     raise ValueError("JWT_SECRET_KEY not configured")
 jwt = JWTManager(app)
+
+# Setup itsdangerous as serializaer
+app.config["USTS_SECRET_KEY"] = os.getenv("USTS_SECRET") 
+if not app.config["USTS_SECRET_KEY"]:
+    raise ValueError("USTS_SECRET_KEY not configured")
+serializer = URLSafeTimedSerializer(app.config["USTS_SECRET_KEY"])
 
 # database condiguration
 db_url = os.getenv("DATABASE_URL")
