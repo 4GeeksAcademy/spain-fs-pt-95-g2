@@ -1,17 +1,23 @@
 from flask import  request, jsonify, Blueprint
-from api.models import db, Product , Inventory
+from api.models import db, Product , Inventory , Category
 from flask_jwt_extended import jwt_required, get_jwt_identity 
 from flask_cors import CORS
 
 api = Blueprint('api', __name__)
 CORS(api)
 
+##############
+# PRODUCTS
+##############
+
 @api.route("/products", methods=["GET"])
+# @jwt_required()
 def get_products():
     products = db.session.query(Product).all()
     return jsonify([p.serialize() for p in products]), 200
 
 @api.route("/products/<int:id>", methods=["GET"])
+# @jwt_required()
 def get_product(id):
     product = db.session.get(Product, id)
     if not product:
@@ -19,6 +25,7 @@ def get_product(id):
     return jsonify(product.serialize()), 200
 
 @api.route("/products", methods=["POST"])
+# @jwt_required()
 def create_product():
     data = request.get_json()
     try:
@@ -37,6 +44,7 @@ def create_product():
         return jsonify({"error" : str(e)}), 400
 
 @api.route("/products/<int:id>", methods=["PUT"])
+# @jwt_required()
 def update_product(id):
     product = db.session.get(Product, id)
     if not product:
@@ -57,6 +65,7 @@ def update_product(id):
         return jsonify({"error": str(e)}), 400
     
 @api.route("/products/<int:id>", methods=["DELETE"])
+# @jwt_required()
 def delete_product(id):
     product = db.session.get(Product, id)
     if not product:
@@ -71,13 +80,13 @@ def delete_product(id):
 ##############
 
 @api.route("/inventories", methods=["GET"])
-@jwt_required()
+# @jwt_required()
 def get_inventories():
     inventories = db.session.query(Inventory).all()
     return jsonify( [i.serialize() for i in inventories] ) , 200
 
 @api.route("/inventories/<int:id>", methods=["GET"])
-@jwt_required()
+# @jwt_required()
 def get_inventory(id):
     inventory = db.session.get( Inventory , id )
     if not inventory:
@@ -85,7 +94,7 @@ def get_inventory(id):
     return jsonify( inventory.serialize() ), 200
 
 @api.route("/inventories", methods=["POST"])
-@jwt_required()
+# @jwt_required()
 def create_inventory():
     data = request.get_json()
     user_id = get_jwt_identity()
@@ -107,7 +116,7 @@ def create_inventory():
         return jsonify( {"error": str(e)}), 400
     
 @api.route("/inventories/<int:id>", methods=["PUT"])
-@jwt_required()
+# @jwt_required()
 def update_inventory(id):
     inventory = db.session.get(Inventory , id)
     if not inventory:
@@ -126,7 +135,7 @@ def update_inventory(id):
         return jsonify( {"error": str(e)} ), 400
     
 @api.route("/inventories/<int:id>", methods=["DELETE"])
-@jwt_required()
+# @jwt_required()
 def delete_inventory(id):
     inventory = db.session.get(Inventory, id)
     if not inventory:
@@ -135,3 +144,35 @@ def delete_inventory(id):
     db.session.delete( inventory )
     db.session.commit()
     return jsonify( {"message": "Inventario eliminado"} ), 200
+
+##############
+# CATEGORY
+##############
+
+@api.route("/categories", methods=["GET"])
+# @jwt_required()
+def get_categories():
+    categories = db.session.query(Category).all()
+    return jsonify( [c.serialize() for c in categories] ), 200
+
+@api.route("/categories/<int:id>", methods=["GET"])
+# @jwt_required()
+def get_category(id):
+    category = db.session.get(Category, id)
+    if not category:
+        return jsonify( {"error": "Categoria no encontrada"} ), 404
+    return jsonify( category.serialize() ), 200
+
+@api.route("/categories", methods=["POST"])
+# @jwt_required()
+def create_category():
+    data = request.get_json()
+    try:
+        new_category = Category(
+            name = data["name"],
+            descripcion = data["description"]
+        )
+        return jsonify(new_category.serialize()), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify( {"error" : str(e)} ), 400
