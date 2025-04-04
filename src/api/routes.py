@@ -1,7 +1,10 @@
+
 from flask import  request, jsonify, Blueprint
 from api.models import db, Product , Inventory , Category
 from flask_jwt_extended import jwt_required, get_jwt_identity 
 from flask_cors import CORS
+from api.models import db, User, UserInventory, Inventory
+import requests
 
 api = Blueprint('api', __name__)
 CORS(api)
@@ -176,3 +179,4 @@ def create_category():
     except Exception as e:
         db.session.rollback()
         return jsonify( {"error" : str(e)} ), 400
+
