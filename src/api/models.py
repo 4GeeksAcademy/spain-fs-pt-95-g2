@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import String, ForeignKey, Text, TIMESTAMP, Numeric , Boolean
+from sqlalchemy import String, ForeignKey, Text, TIMESTAMP, Numeric, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 
@@ -9,12 +9,13 @@ db = SQLAlchemy()
 class User(db.Model):
     __tablename__ = "users"
 
-    id_user: Mapped[int] = mapped_column(primary_key=True)
+    id_user: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     username: Mapped[str] = mapped_column(String(100), unique=True)
     email: Mapped[str] = mapped_column(String(100), unique=True)
     password: Mapped[str] = mapped_column(String(255))
     is_active: Mapped[bool] = mapped_column(Boolean(), nullable=False)
-    created_date: Mapped[datetime] = mapped_column(TIMESTAMP, default=datetime.now)
+    created_date: Mapped[datetime] = mapped_column(
+        TIMESTAMP, default=datetime.now)
     expired_date: Mapped[datetime] = mapped_column(TIMESTAMP)
     staff_number: Mapped[int] = mapped_column()
 
@@ -23,7 +24,7 @@ class User(db.Model):
 
     def serialize(self):
         return {
-            "id_user": self.id,
+            "id_user": self.id_user,
             "username": self.username,
             "email": self.email,
             "created_date": self.created_date,
@@ -113,8 +114,10 @@ class Product(db.Model):
     price: Mapped[float] = mapped_column(Numeric(10, 2))
     quantity: Mapped[int] = mapped_column()
     image_url: Mapped[str] = mapped_column(String(255), nullable=True)
-    category_id: Mapped[int] = mapped_column(ForeignKey("category.id_category"))
-    inventories_id: Mapped[int] = mapped_column(ForeignKey("inventories.id_inventory"))
+    category_id: Mapped[int] = mapped_column(
+        ForeignKey("category.id_category"))
+    inventories_id: Mapped[int] = mapped_column(
+        ForeignKey("inventories.id_inventory"))
 
     category: Mapped["Category"] = relationship(back_populates="products")
     inventory: Mapped["Inventory"] = relationship(back_populates="products")
@@ -131,7 +134,7 @@ class Product(db.Model):
             "name": self.name,
             "price": float(self.price),
             "quantity": self.quantity,
-            "image_url": self.image_url, 
+            "image_url": self.image_url,
             "category_id": self.category_id,
             "inventories_id": self.inventories_id
         }
@@ -142,10 +145,12 @@ class Transaction(db.Model):
 
     id_transaction: Mapped[int] = mapped_column(primary_key=True)
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id_product"))
-    inventories_id: Mapped[int] = mapped_column(ForeignKey("inventories.id_inventory"))
+    inventories_id: Mapped[int] = mapped_column(
+        ForeignKey("inventories.id_inventory"))
     quantity: Mapped[int] = mapped_column()
     transaction_type: Mapped[str] = mapped_column(String(50))
-    created_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=datetime.now)
+    created_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP, default=datetime.now)
 
     product: Mapped["Product"] = relationship(back_populates="transactions")
     inventory: Mapped["Inventory"] = relationship(
@@ -192,8 +197,10 @@ class Order(db.Model):
     __tablename__ = "orders"
 
     id_order: Mapped[int] = mapped_column(primary_key=True)
-    inventories_id: Mapped[int] = mapped_column(ForeignKey("inventories.id_inventory"))
-    supplier_id: Mapped[int] = mapped_column(ForeignKey("suppliers.id_supplier"))
+    inventories_id: Mapped[int] = mapped_column(
+        ForeignKey("inventories.id_inventory"))
+    supplier_id: Mapped[int] = mapped_column(
+        ForeignKey("suppliers.id_supplier"))
     status: Mapped[int] = mapped_column(default=0)
     total: Mapped[float] = mapped_column(Numeric(10, 2))
     created_at: Mapped[datetime] = mapped_column(

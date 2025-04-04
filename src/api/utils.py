@@ -1,4 +1,5 @@
 from flask import jsonify, url_for
+from itsdangerous import URLSafeTimedSerializer
 
 class APIException(Exception):
     status_code = 400
@@ -39,3 +40,27 @@ def generate_sitemap(app):
         <p>Start working on your project by following the <a href="https://start.4geeksacademy.com/starters/full-stack" target="_blank">Quick Start</a></p>
         <p>Remember to specify a real endpoint path like: </p>
         <ul style="text-align: left;">"""+links_html+"</ul></div>"
+
+class SerializerSingleton:
+
+    _instance = None
+    _secret_key = None
+
+    def __new__(cls, secret_key = None):
+        if cls._instance is None:
+            if secret_key is None:
+                raise ValueError("Secret key must be provided on first initialization")
+            cls._instance = super().__new__(cls)
+            cls._instance.serializer = URLSafeTimedSerializer(secret_key)
+        return cls._instance
+
+    @classmethod
+    def initialize(cls, secret_key):
+        if cls._instance is None:
+            cls._instance = cls(secret_key)
+
+    def dumps(self, email):
+        return self.serializer.dumps(email, salt="password-reset")
+
+    def loads(self, token):
+        return self.serializer.loads(token, salt="password-reset", max_age=300)
