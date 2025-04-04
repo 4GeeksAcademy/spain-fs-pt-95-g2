@@ -1,11 +1,11 @@
-export const DetailedCard = ({ Product }) => {
+export const DetailedCard = ({ product }) => {
     <div className="card">
-        <img src={Product.imageProduct} className="card-img-top"></img>
+        <img src={roduct.image_url} className="card-img-top"></img>
         <div className="card-body">
-            <h5>{Product.name}</h5>
-            <p>{Product.category}</p>
-            <p>{Product.price}</p>
-            <p>{Product.quantity}</p>
+            <h5>{product.name}</h5>
+            <p>{product.category}</p>
+            <p>{product.price}</p>
+            <p>{product.quantity}</p>
         </div>
     </div>
 }
