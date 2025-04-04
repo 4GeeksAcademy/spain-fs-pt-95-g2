@@ -26,7 +26,7 @@ SingleTabPanel.propTypes = {
     value: PropTypes.number.isRequired,
 }
 
-function auxFunction(index) {
+function getTabsProps(index) {
     return {
         id: `simple-tab-${index}`,
         'aria-controls': `simple-tabpanel-${index}`,
@@ -44,10 +44,10 @@ const Navigation = () => {
         <>
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                 <Tabs value={value} onChange={handleChange} variant="scrollable" scrollButtons="auto" aria-label="scrollable auto tabs">
-                    <Tab label="Feature Name" {...auxFunction(0)} />
-                    <Tab label="Feature Name" {...auxFunction(1)} />
-                    <Tab label="Feature Name" {...auxFunction(2)} />
-                    <Tab label="Feature Name" {...auxFunction(3)} />
+                    <Tab label="Feature Name" {...getTabsProps(0)} />
+                    <Tab label="Feature Name" {...getTabsProps(1)} />
+                    <Tab label="Feature Name" {...getTabsProps(2)} />
+                    <Tab label="Feature Name" {...getTabsProps(3)} />
                 </Tabs>
             </Box>
             <OnePanel value={value} index={0}>
