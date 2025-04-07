@@ -4,7 +4,7 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 import os
 from flask import Flask, request, jsonify, url_for, Blueprint
 from api.models import db, User, UserInventory, Inventory
-from api.utils import generate_sitemap, APIException, SerializerSingleton
+from api.utils import generate_sitemap, APIException, SerializerSingleton, send_email
 from datetime import datetime, timedelta
 from flask_cors import CORS
 from typing import Optional
@@ -12,8 +12,6 @@ from sqlalchemy import select
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 import requests
 import bcrypt
-import smtplib
-from email.mime.text import MIMEText
 
 api = Blueprint("api", __name__)
 CORS(api)
@@ -23,39 +21,6 @@ def hash_password(password):
     password = bcrypt.hashpw(password, bcrypt.gensalt())
     password = password.decode("utf-8")
     return password
-
-def send_email(to, url):
-    SMTP_SERVER = "in-v3.mailjet.com"
-    SMTP_PORT = 587
-    EMAIL_FROM = os.getenv("EMAIL_USER")
-    SMTP_USER = os.getenv("SMTP_USER")
-    SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
-    if not all([EMAIL_FROM, SMTP_USER, SMTP_PASSWORD]):
-        print("Error: Email credentials not configured")
-        return False
-
-    message = f"""
-        <p>¡Hi!</p>
-        <p>You have requested to reset your password
-        Click <a href="{url}">here</a> to continue</p>
-        <p><i>If you didn't request this, please ignore this email</i></p>
-        """
-
-    msg = MIMEText(message, "html")
-    msg["Subject"] = "Password reset"
-    msg["From"] = EMAIL_FROM
-    msg["To"] = to
-
-    try:
-        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-            server.starttls()
-            server.login(SMTP_USER, SMTP_PASSWORD)
-            server.sendmail(EMAIL_FROM, [to], msg.as_string())
-        return True
-    except Exception as e:
-        print(f"Error sending email: {e}")
-        return False
-
 
 @api.route("/signup", methods=["POST"])
 def handle_signup():
@@ -203,7 +168,7 @@ def handle_reset_password(token):
     response_body = {}
     if not request.method == "POST":
         response_body["error"] = "Method not allowed."
-        return response_body, 400
+        return response_body, 405
 
     data = SerializerSingleton.loads(token)
     if not data:
