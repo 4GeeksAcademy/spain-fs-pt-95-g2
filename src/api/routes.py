@@ -192,27 +192,6 @@ def handle_reset_password(token):
     response_body["message"] = "Password reset succesfully"
     return response_body, 200
   
-@api.route("/api/profile", methods=["GET"])
-@jwt_required()
-def get_profile():
-    user_id = get_jwt_identity()
-
-    try:
-        new_inventory = Inventory(
-            name = data["name"],
-            cif = data["cif"],
-            location = data["location"],
-            created_at = data.get("created_at"),
-            sector = data["sector"],
-            owner_id = user_id
-        )
-        db.session.add( new_inventory )
-        db.session.commit()
-        return jsonify( new_inventory.serialize() ), 201
-    except Exception as e:
-        db.session.rollback()
-        return jsonify( {"error": str(e)}), 400
-  
 ##############
 # PRODUCTS
 ##############
