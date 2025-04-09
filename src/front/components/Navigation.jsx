@@ -20,7 +20,7 @@ function OnePanel(props) {
     )
 }
 
-SingleTabPanel.propTypes = {
+OnePanel.propTypes = {
     children: PropTypes.node,
     index: PropTypes.number.isRequired,
     value: PropTypes.number.isRequired,
@@ -42,27 +42,26 @@ const Navigation = () => {
 
     return (
         <>
-            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                <Tabs value={value} onChange={handleChange} variant="scrollable" scrollButtons="auto" aria-label="scrollable auto tabs">
-                    <Tab label="Feature Name" {...getTabsProps(0)} />
-                    <Tab label="Feature Name" {...getTabsProps(1)} />
-                    <Tab label="Feature Name" {...getTabsProps(2)} />
-                    <Tab label="Feature Name" {...getTabsProps(3)} />
-                </Tabs>
-            </Box>
-            <OnePanel value={value} index={0}>
-                Feature
-            </OnePanel>
-            <OnePanel value={value} index={1}>
-                Feature
-            </OnePanel>
-            <OnePanel value={value} index={2}>
-                Feature
-            </OnePanel>
-            <OnePanel value={value} index={3}>
-                Feature
-            </OnePanel>
-
+                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                    <Tabs value={value} onChange={handleChange} variant="scrollable" scrollButtons="auto" aria-label="scrollable auto tabs">
+                        <Tab label="Feature Name" {...getTabsProps(0)} />
+                        <Tab label="Feature Name" {...getTabsProps(1)} />
+                        <Tab label="Feature Name" {...getTabsProps(2)} />
+                        <Tab label="Feature Name" {...getTabsProps(3)} />
+                    </Tabs>
+                </Box>
+                <OnePanel value={value} index={0}>
+                    Feature
+                </OnePanel>
+                <OnePanel value={value} index={1}>
+                    Feature
+                </OnePanel>
+                <OnePanel value={value} index={2}>
+                    Feature
+                </OnePanel>
+                <OnePanel value={value} index={3}>
+                    Feature
+                </OnePanel>
         </>
     )
 }
