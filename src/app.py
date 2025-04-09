@@ -6,12 +6,14 @@ import os
 from flask import Flask, request, jsonify, url_for, send_from_directory
 from flask_migrate import Migrate
 from flask_swagger import swagger
+from api.utils import APIException, generate_sitemap, SerializerSingleton
 from flask_cors import CORS
-from api.utils import APIException, generate_sitemap
 from api.models import db
 from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
+from datetime import timedelta
+from flask_jwt_extended import JWTManager
 
 # from models import Person
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
@@ -19,6 +21,20 @@ static_file_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../
 app = Flask(__name__)
 app.url_map.strict_slashes = False
 CORS(app)
+
+# Setup the Flask-JWT-Extended extension
+app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET", "super_secret")
+print(app.config["JWT_SECRET_KEY"])
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=24)
+if not app.config["JWT_SECRET_KEY"]:
+    raise ValueError("JWT_SECRET_KEY not configured")
+jwt = JWTManager(app)
+
+# Setup itsdangerous as serializaer
+app.config["USTS_SECRET_KEY"] = os.getenv("USTS_SECRET", "other_super_secret") 
+if not app.config["USTS_SECRET_KEY"]:
+    raise ValueError("USTS_SECRET_KEY not configured")
+serializer = SerializerSingleton.initialize(app.config["USTS_SECRET_KEY"])
 
 # database condiguration
 db_url = os.getenv("DATABASE_URL")
