@@ -55,7 +55,7 @@ class Inventory(db.Model):
 
     def serialize(self):
         return {
-            "id_inventory": self.id,
+            "id_inventory": self.id_inventory,
             "name": self.name,
             "cif": self.cif,
             "location": self.location,
@@ -99,7 +99,7 @@ class Category(db.Model):
 
     def serialize(self):
         return {
-            "id_category": self.id,
+            "id_category": self.id_category,
             "name": self.name,
             "description": self.description,
             "created_at": self.created_at
@@ -130,7 +130,7 @@ class Product(db.Model):
 
     def serialize(self):
         return {
-            "id_product": self.id,
+            "id_product": self.id_product,
             "name": self.name,
             "price": float(self.price),
             "quantity": self.quantity,
@@ -158,7 +158,7 @@ class Transaction(db.Model):
 
     def serialize(self):
         return {
-            "id_transaction": self.id,
+            "id_transaction": self.id_transaction,
             "product_id": self.product_id,
             "inventories_id": self.inventories_id,
             "quantity": self.quantity,
@@ -183,7 +183,7 @@ class Supplier(db.Model):
 
     def serialize(self):
         return {
-            "id_supplier": self.id,
+            "id_supplier": self.id_supplier,
             "name": self.name,
             "contact_name": self.contact_name,
             "email": self.email,
@@ -214,7 +214,7 @@ class Order(db.Model):
 
     def serialize(self):
         return {
-            "id_order": self.id,
+            "id_order": self.id_order,
             "inventories_id": self.inventories_id,
             "supplier_id": self.supplier_id,
             "status": self.status,
@@ -238,7 +238,7 @@ class DetailedOrder(db.Model):
 
     def serialize(self):
         return {
-            "id_detail": self.id,
+            "id_detail": self.id_detail,
             "order_id": self.order_id,
             "product_id": self.product_id,
             "quantity": self.quantity,
@@ -257,7 +257,7 @@ class Attribute(db.Model):
 
     def serialize(self):
         return {
-            "id_attribute": self.id,
+            "id_attribute": self.id_attribute,
             "name": self.name
         }
 

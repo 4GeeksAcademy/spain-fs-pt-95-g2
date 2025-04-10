@@ -3,7 +3,7 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 """
 import os
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User, UserInventory, Inventory , Product, Category
+from api.models import db, User, UserInventory, Inventory , Product, Category, Supplier
 from api.utils import generate_sitemap, APIException, SerializerSingleton, send_email
 from datetime import datetime, timedelta
 from flask_cors import CORS
@@ -345,4 +345,35 @@ def create_category():
     except Exception as e:
         db.session.rollback()
         return jsonify( {"error" : str(e)} ), 400
+
+##############
+# SUPPLIERS
+##############
+
+@api.route("/suppliers", methods= ["GET"])
+@jwt_required()
+def get_suppliers():
+    suppliers = db.session.query(Supplier).all()
+    return jsonify( [s.serialize() for s in suppliers]), 200
+
+@api.route("/suppliers", methods=  ["POST"])
+#@jwt_required()
+def add_supplier():
+    data = request.get_json()
+    try:
+        new_supplier = Supplier(
+            name = data["name"],
+            contact_name = data["contact_name"],
+            email = data["email"],
+            phone = data["phone"],
+            address = data["address"]
+        )
+        db.session.add(new_supplier)
+        db.session.commit()
+        return jsonify(new_supplier.serialize()), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error" : str(e)}), 400
+
+
 
