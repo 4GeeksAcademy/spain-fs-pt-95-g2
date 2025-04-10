@@ -16,11 +16,13 @@ import bcrypt
 api = Blueprint("api", __name__)
 CORS(api)
 
-def hash_password(password):
-    password = password.encode("utf-8")
-    password = bcrypt.hashpw(password, bcrypt.gensalt())
-    password = password.decode("utf-8")
-    return password
+PWD_ENCODE_FMT = "utf-8"
+
+def hash_password(password : str) -> str:
+    encoded_password = password.encode(PWD_ENCODE_FMT)
+    hashed_password = bcrypt.hashpw(encoded_password, bcrypt.gensalt())
+    hashed_password = password.decode(PWD_ENCODE_FMT)
+    return hashed_password
 
 @api.route("/signup", methods=["POST"])
 def handle_signup():
@@ -79,7 +81,7 @@ def handle_login():
 
     user = db.session.scalars(db.select(User).filter(
         User.email.ilike(data["email"]))).first()
-    if not user or not bcrypt.checkpw(data["password"].encode('utf-8'), user.password.encode("utf-8")):
+    if not user or not bcrypt.checkpw(data["password"].encode(PWD_ENCODE_FMT), user.password.encode(PWD_ENCODE_FMT)):
         response_body["error"] = "Invalid email or password"
         return response_body, 401
     if not user.is_active:
@@ -89,11 +91,11 @@ def handle_login():
         response_body["error"] = "User account has expired"
         return response_body, 403
 
-    access_token = create_access_token(identity=user.id)
+    access_token = create_access_token(identity=user.id_user)
     response_body = {
         "message": "Login successful",
         "access_token": access_token,
-        "user_id": user.id,
+        "user_id": user.id_user,
         "username": user.username,
         "email": user.email
     }
