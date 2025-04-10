@@ -3,13 +3,14 @@ import {
   createRoutesFromElements,
   Route,
 } from "react-router-dom";
- {/* Nested Routes: Defines sub-routes within the BaseHome component. */}
+{/* Nested Routes: Defines sub-routes within the BaseHome component. */ }
 import { Layout } from "./pages/Layout";
 import { Home } from "./pages/Home";
 import { Single } from "./pages/Single";
 import { Demo } from "./pages/Demo";
 import Profile from "./pages/Profile";
 import ExternalProducts from "./pages/ExternalProducts";
+import { Signin } from "./pages/Signin";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -25,6 +26,7 @@ export const router = createBrowserRouter(
       <Route path="/demo" element={<Demo />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/external-products" element={<ExternalProducts />} />
+      <Route path="/signin" element={<Signin />} />
     </Route>
   )
 );
