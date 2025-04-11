@@ -357,7 +357,7 @@ def get_suppliers():
     return jsonify( [s.serialize() for s in suppliers]), 200
 
 @api.route("/suppliers", methods=  ["POST"])
-#@jwt_required()
+@jwt_required()
 def add_supplier():
     data = request.get_json()
     try:
@@ -374,6 +374,46 @@ def add_supplier():
     except Exception as e:
         db.session.rollback()
         return jsonify({"error" : str(e)}), 400
+
+@api.route("/suppliers/<int:id_supplier>", methods= ["GET"])
+@jwt_required()
+def get_supplier(id_supplier):
+    supplier = db.session.get(Supplier, id_supplier)
+    if not supplier:
+        return jsonify({"error": "Supplier not found"}), 404
+    return jsonify(supplier.serialize()), 200
+
+@api.route("suppliers/<int:id_supplier>", methods= ["PUT"])
+@jwt_required()
+def update_supplier(id_supplier):
+    supplier = db.session.get (Supplier, id_supplier)
+    if not supplier:
+        return jsonify({"error": "Supplier does not exist"}), 404
+    data = request.get_json()
+    try:
+        supplier.address = data.get("address", supplier.address)
+        supplier.contact_name = data.get("contact_name", supplier.contact_name)
+        supplier.email = data.get("email", supplier.email)
+        supplier.name = data.get("name", supplier.name)
+        supplier.phone = data.get("phone", supplier.phone)
+
+        db.session.commit()
+        return jsonify(supplier.serialize()), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 400
+
+@api.route("suppliers/<int:id_supplier>", methods= ["DELETE"])
+@jwt_required()
+def delete_supplier(id_supplier):
+    supplier= db.session.get(Supplier, id_supplier)
+    if not supplier:
+        return jsonify({"error": "Supplier does not exist"}), 404
+    db.session.delete(supplier)
+    db.session.commit()
+    return jsonify({"message": "Supplier deleted"}), 200
+    
+
 
 
 
