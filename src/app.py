@@ -25,7 +25,7 @@ CORS(app)
 # Setup the Flask-JWT-Extended extension
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET", "super_secret")
 print(app.config["JWT_SECRET_KEY"])
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=24)
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 if not app.config["JWT_SECRET_KEY"]:
     raise ValueError("JWT_SECRET_KEY not configured")
 jwt = JWTManager(app)

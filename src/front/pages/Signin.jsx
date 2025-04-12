@@ -1,32 +1,40 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Checkbox from '@mui/material/Checkbox';
-import CssBaseline from '@mui/material/CssBaseline';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Divider from '@mui/material/Divider';
-import FormLabel from '@mui/material/FormLabel';
-import FormControl from '@mui/material/FormControl';
-import Link from '@mui/material/Link';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
-import Stack from '@mui/material/Stack';
-import MuiCard from '@mui/material/Card';
-import { styled } from '@mui/material/styles';
-// import ForgotPassword from './components/ForgotPassword';
+import {
+    Box,
+    Button,
+    Checkbox,
+    CssBaseline,
+    FormControlLabel,
+    Divider,
+    FormLabel,
+    FormControl,
+    Link,
+    TextField,
+    Typography,
+    Stack,
+    Card as MuiCard,
+    styled
+} from '@mui/material';
+import { GoogleIcon, FacebookIcon, SitemarkIcon } from '../components/CustomIcons';
+import { ForgotPassword } from '../components/ForgotPassword';
 // import ColorModeSelect from '../shared-theme/ColorModeSelect';
-// import { GoogleIcon, FacebookIcon, SitemarkIcon } from './components/CustomIcons';
+
 const Card = styled(MuiCard)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
     alignSelf: 'center',
     width: '100%',
-    padding: theme.spacing(4),
+    padding: theme.spacing(3),
     gap: theme.spacing(2),
     margin: 'auto',
     [theme.breakpoints.up('sm')]: {
-        maxWidth: '450px',
+        maxWidth: '500px',
+        padding: theme.spacing(4),
+    },
+    [theme.breakpoints.down('sm')]: {
+        padding: theme.spacing(2.5),
+        margin: theme.spacing(1),
     },
     boxShadow:
         'hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px',
@@ -37,11 +45,12 @@ const Card = styled(MuiCard)(({ theme }) => ({
 }));
 
 const SignInContainer = styled(Stack)(({ theme }) => ({
-    height: 'calc((1 - var(--template-frame-height, 0)) * 100dvh)',
-    minHeight: '100%',
+    height: 'auto',
+    minHeight: '100vh',
     padding: theme.spacing(2),
+    justifyContent: 'center',
     [theme.breakpoints.up('sm')]: {
-        padding: theme.spacing(4),
+        padding: theme.spacing(1),
     },
     '&::before': {
         content: '""',
@@ -59,23 +68,29 @@ const SignInContainer = styled(Stack)(({ theme }) => ({
     },
 }));
 export const Signin = (props) => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [emailError, setEmailError] = useState(false);
     const [emailErrorMessage, setEmailErrorMessage] = useState('');
     const [passwordError, setPasswordError] = useState(false);
     const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
-    const [open, setOpen] = useState(false);
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [openDialog, setOpenDialog] = useState(false);
+    const [rememberMe, setrememberMe] = useState(false);
     const navigate = useNavigate();
-    const BACKEND_URL = 'https://silver-chainsaw-jp7pwgww5492pxx4-3001.app.github.dev'
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-    const handleClickOpen = async () => {
-        setOpen(true);
-    }
+    useEffect(() => {
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        if (token) navigate('/');
+    }, []);
 
-    const handleClose = async () => {
-        setOpen(false);
-    }
+    const handleOpenDialog = () => {
+        setOpenDialog(true);
+    };
+
+    const handleCloseDialog = () => {
+        setOpenDialog(false);
+    };
 
     const validateInputs = () => {
         let isValid = true;
@@ -108,19 +123,22 @@ export const Signin = (props) => {
         if (!isValid) return;
 
         try {
-            const response = await fetch(`${BACKEND_URL}/api/login`, {
+            const response = await fetch(`${BACKEND_URL}api/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({ email, password, remember_me: rememberMe }),
             });
-
-            if (!response.ok) throw new Error('Incorrect credentials');
-
             const data = await response.json();
-            console.log(data.message);
-            sessionStorage.setItem('token', data.token);
+            if (!response.ok) throw new Error(data.error || 'Incorrect credentials');
+
+            if (rememberMe) {
+                localStorage.setItem('token', data.access_token);
+            } else {
+                sessionStorage.setItem('token', data.access_token);
+            }
+
             alert('Successful login');
-            navigate('/private');
+            navigate('/');
         } catch (error) {
             console.error('Login error:', error);
             alert('Login failed. Please verify your credentials..');
@@ -130,16 +148,19 @@ export const Signin = (props) => {
     return (
         <>
             <CssBaseline enableColorScheme />
-            <SignInContainer direction="column" justifyContent="space-between">
+            <SignInContainer direction="column">
                 <Card variant="outlined">
-                    <Typography component="h1" variant="h4" sx={{ width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)' }}>
+                    <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+                        <SitemarkIcon />
+                    </Box>
+                    <Typography component='h1' variant="h4" sx={{ width: '100%', textAlign: 'center', fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' }, mb: 2 }}>
                         Sign in
                     </Typography>
                     <Box
-                        component="form"
+                        component='form'
                         onSubmit={handleSubmit}
                         noValidate
-                        sx={{ display: 'flex', flexDirection: 'column', width: '100%', gap: 2, }}
+                        sx={{ display: 'flex', flexDirection: 'column', width: '100%', gap: 2, mb: 2, }}
                     >
                         <FormControl>
                             <FormLabel htmlFor='email'>Email</FormLabel>
@@ -151,13 +172,19 @@ export const Signin = (props) => {
                                 name="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                placeholder="your@email.com"
-                                autoComplete="email"
+                                placeholder='your@email.com'
+                                autoComplete='email'
                                 autoFocus
                                 required
                                 fullWidth
-                                variant="outlined"
+                                variant='outlined'
+                                size='small'
                                 color={emailError ? 'error' : 'primary'}
+                                sx={{
+                                    '& .MuiInputBase-root': {
+                                        height: { xs: 40, sm: 48 }
+                                    }
+                                }}
                             />
                         </FormControl>
                         <FormControl>
@@ -165,54 +192,112 @@ export const Signin = (props) => {
                             <TextField
                                 error={passwordError}
                                 helperText={passwordErrorMessage}
-                                name="password"
-                                placeholder="••••••"
-                                type="password"
-                                id="password"
+                                name='password'
+                                placeholder='••••••'
+                                type='password'
+                                id='password'
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                autoComplete="current-password"
+                                autoComplete='current-password'
                                 autoFocus
                                 required
                                 fullWidth
-                                variant="outlined"
+                                variant='outlined'
+                                size='small'
                                 color={passwordError ? 'error' : 'primary'}
+                                sx={{
+                                    '& .MuiInputBase-root': {
+                                        height: { xs: 40, sm: 48 }
+                                    }
+                                }}
                             />
                         </FormControl>
-                        <FormControlLabel control={<Checkbox value="remember" color="primary" />} label="Remember me" />
-                        <Button type='submit' fullWidth variant='contained' onClick={validateInputs}>Sign in</Button>
-                        <Link
-                            component="button"
-                            type="button"
-                            onClick={handleClickOpen}
-                            variant="body2"
-                            sx={{ alignSelf: 'center' }}
-                        >Forgot your password?</Link>
+                        <Box sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            flexWrap: 'wrap'
+                        }}>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={rememberMe}
+                                        onChange={(e) => setrememberMe(e.target.checked)}
+                                        value="remember"
+                                        color="primary"
+                                        size="small"
+                                    />
+                                }
+                                label='Remember me'
+                                sx={{ '& .MuiTypography-root': { fontSize: { xs: '0.8rem', sm: '0.875rem' } } }}
+                            />
+                            <Link
+                                component='button'
+                                type='button'
+                                onClick={handleOpenDialog}
+                                variant='body2'
+                                sx={{ alignSelf: 'center' }}
+                            >
+                                Forgot your password?
+                            </Link>
+                        </Box>
+                        <Button
+                            type='submit'
+                            fullWidth
+                            variant='contained'
+                            sx={{ py: { xs: 1, sm: 1.25 }, fontSize: { xs: '0.875rem', sm: '1rem' } }}
+                        >
+                            Sign in
+                        </Button>
+                        <ForgotPassword
+                            open={openDialog}
+                            handleClose={handleCloseDialog}
+                            initialEmail={email}
+                        />
                     </Box>
-                    <Divider>or</Divider>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Divider sx={{ my: 2 }}>or</Divider>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 1 }}>
                         <Button
                             fullWidth
-                            variant="outlined"
+                            variant='outlined'
                             onClick={() => alert('Sign in with Google')}
-                        >Sign in with Google</Button>
+                            startIcon={<GoogleIcon />}
+                            sx={{
+                                py: { xs: 1, sm: 1.25 },
+                                fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                            }}
+                        >
+                            Sign in with Google
+                        </Button>
                         <Button
                             fullWidth
-                            variant="outlined"
+                            variant='outlined'
                             onClick={() => alert('Sign in with Facebook')}
+                            startIcon={<FacebookIcon />}
+                            sx={{
+                                py: { xs: 1, sm: 1.25 },
+                                fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                            }}
                         >
                             Sign in with Facebook
                         </Button>
-                        <Typography sx={{ textAlign: 'center' }}>
-                            <Link
-                                href="/material-ui/getting-started/templates/sign-in/"
-                                variant="body2"
-                                sx={{ alignSelf: 'center' }}
-                            >
-                                Sign up
-                            </Link>
-                        </Typography>
                     </Box>
+                    <Typography
+                        sx={{
+                            textAlign: 'center',
+                            mt: 1,
+                            fontSize: { xs: '0.875rem', sm: '0.9rem' }
+                        }}
+                    >
+                        Don't have an account?{' '}
+                        <Link
+                            href='/signup'
+                            variant='body2'
+                            sx={{ fontWeight: 500 }}
+                        >
+                            Sign up
+                        </Link>
+                    </Typography>
                 </Card>
             </SignInContainer>
         </>

@@ -90,11 +90,16 @@ def handle_login():
     if user.expired_date and user.expired_date < datetime.now():
         response_body["error"] = "User account has expired"
         return response_body, 403
+    if data.get("remember_me"):
+        expires = timedelta(days=31)
+    else:
+        expires = timedelta(hours=1)
 
-    access_token = create_access_token(identity=user.id_user)
+    access_token = create_access_token(identity=user.id_user, expires_delta=expires)
     response_body = {
         "message": "Login successful",
         "access_token": access_token,
+        "expires_in": expires.total_seconds(),
         "user_id": user.id_user,
         "username": user.username,
         "email": user.email
