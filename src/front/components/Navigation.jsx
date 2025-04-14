@@ -1,9 +1,11 @@
-import React from "react";
+import React, {useState} from "react";
 import { Router, Link } from "react-router-dom";
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box'
 import PropTypes from "prop-types";
+import Suppliers from "./Suppliers";
+import ProductDetails from "./ProductDetails";
 
 function OnePanel(props) {
     const { children, value, index, ...other } = props; //el ...other es necesario para materialUI porque añade otros props sin necesidad de escribirlos
@@ -44,17 +46,17 @@ const Navigation = () => {
         <>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     <Tabs value={value} onChange={handleChange} variant="scrollable" scrollButtons="auto" aria-label="scrollable auto tabs">
-                        <Tab label="Feature Name" {...getTabsProps(0)} />
-                        <Tab label="Feature Name" {...getTabsProps(1)} />
+                        <Tab label="Suppliers" {...getTabsProps(0)} />
+                        <Tab label="Products" {...getTabsProps(1)} />
                         <Tab label="Feature Name" {...getTabsProps(2)} />
                         <Tab label="Feature Name" {...getTabsProps(3)} />
                     </Tabs>
                 </Box>
                 <OnePanel value={value} index={0}>
-                    Feature
+                    <Suppliers></Suppliers>
                 </OnePanel>
                 <OnePanel value={value} index={1}>
-                    Feature
+                    <ProductDetails></ProductDetails>
                 </OnePanel>
                 <OnePanel value={value} index={2}>
                     Feature
