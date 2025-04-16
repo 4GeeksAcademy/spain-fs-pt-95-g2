@@ -6,9 +6,10 @@ import Box from '@mui/material/Box'
 import PropTypes from "prop-types";
 import Suppliers from "./Suppliers";
 import ProductDetails from "./ProductDetails";
+import Cloudinary from "./Cloudinary";
 
 function OnePanel(props) {
-    const { children, value, index, ...other } = props; //el ...other es necesario para materialUI porque añade otros props sin necesidad de escribirlos
+    const { children, value, index, ...other } = props; 
 
     return (
         <div
@@ -59,7 +60,7 @@ const Navigation = () => {
                     <ProductDetails></ProductDetails>
                 </OnePanel>
                 <OnePanel value={value} index={2}>
-                    Feature
+                    <Cloudinary/>
                 </OnePanel>
                 <OnePanel value={value} index={3}>
                     Feature
