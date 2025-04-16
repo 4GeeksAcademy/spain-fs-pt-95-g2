@@ -64,7 +64,7 @@ export const ForgotPassword = ({ open, handleClose, initialEmail = '' }) => {
             >
                 {success ? (
                     <DialogContentText>
-                        We've sent a password reset link to your email address. Please check your inbox.
+                        If your email is registered on our page, we will send you a password reset link. Please check your inbox.
                     </DialogContentText>
                 ) : (
                     <>

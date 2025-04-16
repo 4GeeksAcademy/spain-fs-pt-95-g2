@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 import os
-from flask import Flask, request, jsonify, url_for, Blueprint
+from flask import Flask, request, jsonify, url_for, Blueprint, redirect
 from api.models import db, User, UserInventory, Inventory
 from api.utils import generate_sitemap, APIException, SerializerSingleton, send_email
 from datetime import datetime, timedelta
@@ -10,6 +10,7 @@ from flask_cors import CORS
 from typing import Optional
 from sqlalchemy import select
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from flask_dance.contrib.google import make_google_blueprint, google
 import requests
 import bcrypt
 
@@ -106,6 +107,52 @@ def handle_login():
     }
     return response_body, 200
 
+@api.route('/login_google')
+def login_google():
+    return redirect(url_for('google.login'))
+
+@api.route('/google_login/callback')
+def google_login_callback():
+    if 'usuario' in session:
+        return redirect(url_for('pagina_principal'))
+
+    if not google.authorized:
+        return redirect(url_for('google.login'))
+
+    resp = google.get('https://www.googleapis.com/oauth2/v3/userinfo')
+    
+    if not resp.ok:
+        flash("Error al obtener información de Google. Intenta nuevamente.", "error")
+        return redirect(url_for('login'))
+
+    user_info = resp.json()
+
+    # 🔍 Imprimir la respuesta para depuración
+    print("Respuesta de Google:", user_info)
+
+    # Verificar que Google haya enviado un email
+    if 'email' not in user_info:
+        flash("Error: Google no proporcionó un email.", "error")
+        return redirect(url_for('login'))
+
+    # Obtener el ID único de Google
+    google_id = user_info.get("sub")
+
+    # Verificar si el usuario ya está registrado
+    user = collection.find_one({'email': user_info['email']})
+    if not user:
+        # Registrar nuevo usuario con Google
+        collection.insert_one({
+            'usuario': user_info.get('name', 'Usuario sin nombre'),
+            'email': user_info['email'],
+            'google_id': google_id  # Guardamos el ID único de Google
+        })
+
+    # Iniciar sesión guardando el nombre en la sesión
+    session['usuario'] = user_info.get('name', 'Usuario sin nombre')
+
+   
+    return redirect(url_for('pagina_principal'))
 
 @api.route("/users", methods=["GET"])
 def handle_users():

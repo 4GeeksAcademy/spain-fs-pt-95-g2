@@ -11,6 +11,7 @@ import { Demo } from "./pages/Demo";
 import Profile from "./pages/Profile";
 import ExternalProducts from "./pages/ExternalProducts";
 import { Signin } from "./pages/Signin";
+import { Signup } from "./pages/Signup";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -27,6 +28,7 @@ export const router = createBrowserRouter(
       <Route path="/profile" element={<Profile />} />
       <Route path="/external-products" element={<ExternalProducts />} />
       <Route path="/signin" element={<Signin />} />
+      <Route path="/signup" element={<Signup />} />
     </Route>
   )
 );
