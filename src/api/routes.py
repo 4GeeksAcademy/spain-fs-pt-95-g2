@@ -18,12 +18,14 @@ api = Blueprint("api", __name__)
 CORS(api)
 
 PWD_ENCODE_FMT = "utf-8"
+FRONTEND_URL = os.getenv("VITE_FRONTEND_URL")
 
-def hash_password(password : str) -> str:
+
+def hash_password(password: str) -> str:
     encoded_password = password.encode(PWD_ENCODE_FMT)
     hashed_password = bcrypt.hashpw(encoded_password, bcrypt.gensalt())
-    hashed_password = password.decode(PWD_ENCODE_FMT)
-    return hashed_password
+    return hashed_password.decode(PWD_ENCODE_FMT)
+
 
 @api.route("/signup", methods=["POST"])
 def handle_signup():
@@ -96,7 +98,8 @@ def handle_login():
     else:
         expires = timedelta(hours=1)
 
-    access_token = create_access_token(identity=user.id_user, expires_delta=expires)
+    access_token = create_access_token(
+        identity=user.id_user, expires_delta=expires)
     response_body = {
         "message": "Login successful",
         "access_token": access_token,
@@ -107,9 +110,11 @@ def handle_login():
     }
     return response_body, 200
 
+
 @api.route('/login_google')
 def login_google():
     return redirect(url_for('google.login'))
+
 
 @api.route('/google_login/callback')
 def google_login_callback():
@@ -120,7 +125,7 @@ def google_login_callback():
         return redirect(url_for('google.login'))
 
     resp = google.get('https://www.googleapis.com/oauth2/v3/userinfo')
-    
+
     if not resp.ok:
         flash("Error al obtener información de Google. Intenta nuevamente.", "error")
         return redirect(url_for('login'))
@@ -151,8 +156,8 @@ def google_login_callback():
     # Iniciar sesión guardando el nombre en la sesión
     session['usuario'] = user_info.get('name', 'Usuario sin nombre')
 
-   
     return redirect(url_for('pagina_principal'))
+
 
 @api.route("/users", methods=["GET"])
 def handle_users():
@@ -201,35 +206,41 @@ def handle_forgot_password():
 
     email = data["email"].strip().lower()
     user = db.session.scalars(db.select(User).filter(
-        User.email.ilike(data["email"]))).first()
+        User.email.ilike(email))).first()
     if not user:
         response_body["message"] = "If the email exists, you should have received the recovery message."
         return response_body, 200
 
+    username = user.username if user.username else "User"
     token = SerializerSingleton().dumps(email)
-    reset_url = url_for("api.handle_reset_password",
-                        token=token, _external=True)
+    reset_url = f"{FRONTEND_URL}reset-password?token={token}"
     send_email(
         to=user.email,
-        url=reset_url
+        url=reset_url,
+        name=username
     )
     response_body["message"] = "Recovery email sent"
     return response_body, 200
 
 
-@api.route("/reset-password/<token>", methods=["POST"])
-def handle_reset_password(token):
+@api.route("/reset-password/", methods=["POST"])
+def handle_reset_password():
     response_body = {}
     if not request.method == "POST":
         response_body["error"] = "Method not allowed."
         return response_body, 405
 
-    data = SerializerSingleton.loads(token)
+    token = request.args.get("token")
+    if not token:
+        response_body["error"] = "Missing token"
+        return response_body, 400
+
+    data = SerializerSingleton().loads(token)
     if not data:
         response_body["error"] = "Invalid or expired token"
         return response_body, 401
-
-    user = User.query.filter_by(email=data["email"]).first()
+    
+    user = User.query.filter_by(email=data).first()
     if not user:
         response_body["error"] = "User not found"
         return response_body, 404
@@ -245,6 +256,7 @@ def handle_reset_password(token):
     response_body["message"] = "Password reset succesfully"
     return response_body, 200
 
+
 @api.route("/api/profile", methods=["GET"])
 @jwt_required()
 def get_profile():
@@ -254,7 +266,8 @@ def get_profile():
     if not user:
         return jsonify({"msg": "User not found"}), 404
 
-    user_inventory_links = UserInventory.query.filter_by(users_id=user_id).all()
+    user_inventory_links = UserInventory.query.filter_by(
+        users_id=user_id).all()
     inventories = []
 
     for link in user_inventory_links:
@@ -271,6 +284,7 @@ def get_profile():
         "created_date": user.created_date,
         "inventories": inventories
     }), 200
+
 
 @api.route("/api/external/products", methods=["GET"])
 def get_external_products():

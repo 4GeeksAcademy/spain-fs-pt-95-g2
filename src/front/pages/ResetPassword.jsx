@@ -1,13 +1,11 @@
-import React, { useState } from "react";
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
     Box,
     Button,
     CssBaseline,
-    Divider,
     FormLabel,
     FormControl,
-    Link,
     TextField,
     Typography,
     Stack,
@@ -17,9 +15,10 @@ import {
     ListItem,
     ListItemIcon
 } from '@mui/material';
-import { GoogleIcon, FacebookIcon, SitemarkIcon } from '../components/CustomIcons';
+import { SitemarkIcon } from '../components/CustomIcons';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+
 
 const Card = styled(MuiCard)(() => ({
     display: 'flex',
@@ -43,7 +42,7 @@ const Card = styled(MuiCard)(() => ({
     }
 }));
 
-const SignUpContainer = styled(Stack)(() => ({
+const ResetPasswordContainer = styled(Stack)(() => ({
     height: 'auto',
     minHeight: '100vh',
     padding: 16,
@@ -116,19 +115,27 @@ const PasswordRequirements = ({ password }) => {
     );
 };
 
-export const Signup = () => {
-    const [email, setEmail] = useState('');
+
+export const ResetPassword = () => {
     const [password, setPassword] = useState('');
-    const [username, setUsername] = useState('');
-    const [emailError, setEmailError] = useState(false);
-    const [emailErrorMessage, setEmailErrorMessage] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [passwordError, setPasswordError] = useState(false);
     const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
-    const [usernameError, setUsernameError] = useState(false);
-    const [usernameErrorMessage, setUsernameErrorMessage] = useState('');
+    const [confirmPasswordError, setConfirmPasswordError] = useState(false);
+    const [confirmPasswordErrorMessage, setConfirmPasswordErrorMessage] = useState('');
     const [showPasswordRequirements, setShowPasswordRequirements] = useState(false)
+    const [success, setSuccess] = useState('');
+    const [error, setError] = useState('');
+    const [searchParams] = useSearchParams();
+    const token = searchParams.get('token');
     const navigate = useNavigate();
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
+    useEffect(() => {
+        if (!token) {
+            setError('Invalid or missing token');
+        }
+    }, [token]);
 
     const validatePassword = (password) => {
 
@@ -158,75 +165,64 @@ export const Signup = () => {
     const validateInputs = () => {
         let isValid = true;
 
-        if (!username || username.trim().length < 1) {
-            setUsernameError(true);
-            setUsernameErrorMessage('Username is required.');
-            isValid = false;
-        } else if (username.length < 3) {
-            setUsernameError(true);
-            setUsernameErrorMessage('Username must be at least 3 characters long.');
-            isValid = false;
-        } else {
-            setUsernameError(false);
-            setUsernameErrorMessage('');
-        }
-
-        if (!email || !/\S+@\S+\.\S+/.test(email)) {
-            setEmailError(true);
-            setEmailErrorMessage('Please enter a valid email address.');
-            isValid = false;
-        } else {
-            setEmailError(false);
-            setEmailErrorMessage('');
-        }
-
         const passwordValidation = validatePassword(password);
         if (!password || !passwordValidation.validate) {
             setPasswordError(true);
             setPasswordErrorMessage(passwordValidation.message);
             isValid = false;
-        } else {
-            setPasswordError(false);
-            setPasswordErrorMessage('');
+        }
+
+        if (password !== confirmPassword) {
+            setConfirmPasswordError(true);
+            setConfirmPasswordErrorMessage('Passwords do not match');
+            isValid = false;
         }
 
         return isValid;
     };
 
+    const clearErrors = () => {
+        setPasswordError(false);
+        setPasswordErrorMessage('');
+        setConfirmPasswordError(false);
+        setConfirmPasswordErrorMessage('');
+        setError('');
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!validateInputs()) return;
+
+        if (!validateInputs()) {
+            return;
+        }
 
         try {
-            const response = await fetch(`${BACKEND_URL}api/signup`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    username: username.trim(),
-                    email: email.trim(),
-                    password
-                }),
-            });
-            const data = await response.json();
-            if (!response.ok) {
-                if (response.status === 409) {
-                    setEmailError(true);
-                    setEmailErrorMessage(data.message || 'This email is already registered.');
-                    return;
-                }
-                throw new Error(data.message || 'Signup failed');
-            }
+            clearErrors();
 
-            navigate('/signin');
+            const response = await fetch(`${BACKEND_URL}api/reset-password?token=${token}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ new_password: password }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) throw new Error(data.error || 'Failed to reset password');
+
+            setSuccess('Password updated successfully');
+            setTimeout(() => navigate('/signin', { replace: true }), 2000);
         } catch (error) {
-            console.error('Signup error:', error);
+            setError(error.message);
+            console.error('Reset error:', error);
         }
-    };
+    }
 
     return (
         <>
-            <CssBaseline enableColorScheme />
-            <SignUpContainer direction='column'>
+            <CssBaseline />
+            <ResetPasswordContainer direction='column'>
                 <Card variant='outlined'>
                     <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
                         <SitemarkIcon />
@@ -235,73 +231,18 @@ export const Signup = () => {
                         component='h1'
                         variant="h4"
                         sx={{ width: '100%', textAlign: 'center', fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' }, mb: 2 }}>
-                        Sign up
+                        Reset password
                     </Typography>
                     <Box
                         component='form'
                         onSubmit={handleSubmit}
                         noValidate
-                        sx={{ display: 'flex', flexDirection: 'column', width: '100%', gap: 2, mb: 1, }}
+                        sx={{ display: 'flex', flexDirection: 'column', width: '100%', gap: 2, mb: 2, }}
                     >
                         <FormControl>
-                            <FormLabel htmlFor='userame'>Username</FormLabel>
+                            <FormLabel htmlFor='password'>New password</FormLabel>
                             <TextField
-                                error={usernameError}
-                                helperText={usernameErrorMessage}
-                                id='username'
-                                type='username'
-                                name='username'
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
-                                onFocus={() => {
-                                    setUsernameError(false);
-                                    setUsernameErrorMessage('');
-                                }}
-                                placeholder='Your username'
-                                autoComplete='username'
-                                required
-                                fullWidth
-                                variant='outlined'
-                                size='small'
-                                color={usernameError ? 'error' : 'primary'}
-                                sx={{
-                                    '& .MuiInputBase-root': {
-                                        height: { xs: 40, sm: 48 }
-                                    }
-                                }}
-                            />
-                        </FormControl>
-                        <FormControl>
-                            <FormLabel htmlFor='email'>Email</FormLabel>
-                            <TextField
-                                error={emailError}
-                                helperText={emailErrorMessage}
-                                id='email'
-                                type='email'
-                                name='email'
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                onFocus={() => {
-                                    setEmailError(false);
-                                    setEmailErrorMessage('');
-                                }}
-                                placeholder='your@email.com'
-                                autoComplete='email'
-                                required
-                                fullWidth
-                                variant='outlined'
-                                size='small'
-                                color={emailError ? 'error' : 'primary'}
-                                sx={{
-                                    '& .MuiInputBase-root': {
-                                        height: { xs: 40, sm: 48 }
-                                    }
-                                }}
-                            />
-                        </FormControl>
-                        <FormControl>
-                            <FormLabel htmlFor='password'>Password</FormLabel>
-                            <TextField
+                                autoFocus
                                 error={passwordError}
                                 helperText={passwordErrorMessage}
                                 name='password'
@@ -314,6 +255,7 @@ export const Signup = () => {
                                     setShowPasswordRequirements(true);
                                     setPasswordError(false);
                                     setPasswordErrorMessage('');
+                                    setError('');
                                 }}
                                 onBlur={() => setShowPasswordRequirements(false)}
                                 autoComplete='new-password'
@@ -334,60 +276,59 @@ export const Signup = () => {
                                 </Box>
                             )}
                         </FormControl>
+                        <FormControl sx={{ mb: 2 }}>
+                            <FormLabel htmlFor='password'>Confirm new password</FormLabel>
+                            <TextField
+                                error={confirmPasswordError}
+                                helperText={confirmPasswordErrorMessage}
+                                name='confirm-password'
+                                placeholder='••••••••'
+                                type='password'
+                                id='password'
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                onFocus={() => {
+                                    setPasswordError(false);
+                                    setPasswordErrorMessage('');
+                                    setError('');
+                                }}
+                                autoComplete='confirm-new-password'
+                                required
+                                fullWidth
+                                variant='outlined'
+                                size='small'
+                                color={confirmPasswordError ? 'error' : 'primary'}
+                                sx={{
+                                    '& .MuiInputBase-root': {
+                                        height: { xs: 40, sm: 48 }
+                                    }
+                                }}
+                            />
+                        </FormControl>
+
+                        {error && (
+                            <Typography color='error' sx={{ mb: 2 }}>
+                                {error}
+                            </Typography>
+                        )}
+
+                        {success && (
+                            <Typography color='success' sx={{ mb: 2 }}>
+                                {success}
+                            </Typography>
+                        )}
+
                         <Button
                             type='submit'
                             fullWidth
                             variant='contained'
                             sx={{ py: { xs: 1, sm: 1.25 }, fontSize: { xs: '0.875rem', sm: '1rem' } }}
                         >
-                            Sign up
+                            Submit
                         </Button>
                     </Box>
-                    <Divider sx={{ my: 1 }}>or</Divider>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 1 }}>
-                        <Button
-                            fullWidth
-                            variant='outlined'
-                            onClick={() => alert('Sign up with Google')}
-                            startIcon={<GoogleIcon />}
-                            sx={{
-                                py: { xs: 1, sm: 1.25 },
-                                fontSize: { xs: '0.8rem', sm: '0.875rem' }
-                            }}
-                        >
-                            Sign up with Google
-                        </Button>
-                        {/* <Button
-                            fullWidth
-                            variant='outlined'
-                            onClick={() => alert('Sign up with Facebook')}
-                            startIcon={<FacebookIcon />}
-                            sx={{
-                                py: { xs: 1, sm: 1.25 },
-                                fontSize: { xs: '0.8rem', sm: '0.875rem' }
-                            }}
-                        >
-                            Sign up with Facebook
-                        </Button> */}
-                    </Box>
-                    <Typography
-                        sx={{
-                            textAlign: 'center',
-                            mt: 1,
-                            fontSize: { xs: '0.875rem', sm: '0.9rem' }
-                        }}
-                    >
-                        Already have an account?{' '}
-                        <Link
-                            href='/signin'
-                            variant='body2'
-                            sx={{ fontWeight: 500 }}
-                        >
-                            Sign in
-                        </Link>
-                    </Typography>
                 </Card>
-            </SignUpContainer>
+            </ResetPasswordContainer>
         </>
     );
 }

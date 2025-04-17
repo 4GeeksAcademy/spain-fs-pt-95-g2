@@ -3,6 +3,8 @@ from flask import jsonify, url_for
 from itsdangerous import URLSafeTimedSerializer
 import smtplib
 from email.mime.text import MIMEText
+from datetime import datetime
+
 
 class APIException(Exception):
     status_code = 400
@@ -19,10 +21,12 @@ class APIException(Exception):
         rv['message'] = self.message
         return rv
 
+
 def has_no_empty_params(rule):
     defaults = rule.defaults if rule.defaults is not None else ()
     arguments = rule.arguments if rule.arguments is not None else ()
     return len(defaults) >= len(arguments)
+
 
 def generate_sitemap(app):
     links = ['/admin/']
@@ -34,7 +38,8 @@ def generate_sitemap(app):
             if "/admin/" not in url:
                 links.append(url)
 
-    links_html = "".join(["<li><a href='" + y + "'>" + y + "</a></li>" for y in links])
+    links_html = "".join(["<li><a href='" + y + "'>" +
+                         y + "</a></li>" for y in links])
     return """
         <div style="text-align: center;">
         <img style="max-height: 80px" src='https://storage.googleapis.com/breathecode/boilerplates/rigo-baby.jpeg' />
@@ -44,15 +49,17 @@ def generate_sitemap(app):
         <p>Remember to specify a real endpoint path like: </p>
         <ul style="text-align: left;">"""+links_html+"</ul></div>"
 
+
 class SerializerSingleton:
 
     _instance = None
     _secret_key = None
 
-    def __new__(cls, secret_key = None):
+    def __new__(cls, secret_key=None):
         if cls._instance is None:
             if secret_key is None:
-                raise ValueError("Secret key must be provided on first initialization")
+                raise ValueError(
+                    "Secret key must be provided on first initialization")
             cls._instance = super().__new__(cls)
             cls._instance.serializer = URLSafeTimedSerializer(secret_key)
         return cls._instance
@@ -67,8 +74,9 @@ class SerializerSingleton:
 
     def loads(self, token):
         return self.serializer.loads(token, salt="password-reset", max_age=300)
-    
-def send_email(to, url):
+
+
+def send_email(to, url, name):
     SMTP_SERVER = "in-v3.mailjet.com"
     SMTP_PORT = 587
     EMAIL_FROM = os.getenv("EMAIL_USER")
@@ -78,12 +86,16 @@ def send_email(to, url):
         print("Error: Email credentials not configured")
         return False
 
-    message = f"""
-        <p>¡Hi!</p>
-        <p>You have requested to reset your password
-        Click <a href="{url}">here</a> to continue</p>
-        <p><i>If you didn't request this, please ignore this email</i></p>
-        """
+    try:
+        with open('resetPasswordHTML.html', 'r', encoding='utf-8') as file:
+            html_content = file.read()
+
+        message = html_content.replace('{{RESET_URL}}', url) \
+            .replace('{{name}}', name) \
+            .replace('{{current_year}}', str(datetime.now().year))
+    except Exception as e:
+        print(f"Error loading email template: {e}")
+        return False
 
     msg = MIMEText(message, "html")
     msg["Subject"] = "Password reset"

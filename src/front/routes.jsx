@@ -12,6 +12,7 @@ import Profile from "./pages/Profile";
 import ExternalProducts from "./pages/ExternalProducts";
 import { Signin } from "./pages/Signin";
 import { Signup } from "./pages/Signup";
+import { ResetPassword } from "./pages/ResetPassword";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -29,6 +30,7 @@ export const router = createBrowserRouter(
       <Route path="/external-products" element={<ExternalProducts />} />
       <Route path="/signin" element={<Signin />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
     </Route>
   )
 );
