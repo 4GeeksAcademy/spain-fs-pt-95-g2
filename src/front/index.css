@@ -4,15 +4,25 @@
     padding: 16px;
 }
 
-
-.titulo {
+.profile-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 10px;
+  margin-bottom: 16px;
+}
+.logo {
+  width: 100px;
+  height: auto;
+  margin-right: 16px;
+}
+.title {
     font-size: 30px;
     font-weight: bold;
     margin-bottom: 16px;
     text-align: center;
   }
 
-  
   .card {
     background-color: white;
     box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);

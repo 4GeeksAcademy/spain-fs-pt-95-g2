@@ -1,19 +1,28 @@
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
 export const Navbar = () => {
+  const [isLogged, setIsLogged] = useState(false);
 
-	return (
-		<nav className="navbar navbar-light bg-light">
-			<div className="container">
-				<Link to="/">
-					<span className="navbar-brand mb-0 h1">React Boilerplate</span>
-				</Link>
-				<div className="ml-auto">
-					<Link to="/demo">
-						<button className="btn btn-primary">Check the Context in action</button>
-					</Link>
-				</div>
-			</div>
-		</nav>
-	);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsLogged(!!token);
+  }, []);
+
+  return (
+    <nav className="navbar navbar-light bg-light px-4">
+      <div className="container-fluid d-flex justify-content-end align-items-center">
+        {!isLogged ? (
+          <Link to="/signin">
+            <button className="btn btn-outline-dark">LOGIN</button>
+          </Link>
+        ) : (
+          <Link to="/profile">
+            <AccountCircleIcon style={{ fontSize: 32, color: "#111" }} />
+          </Link>
+        )}
+      </div>
+    </nav>
+  );
 };
