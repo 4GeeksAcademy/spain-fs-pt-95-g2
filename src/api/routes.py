@@ -99,7 +99,7 @@ def handle_login():
         expires = timedelta(hours=1)
 
     access_token = create_access_token(
-        identity=user.id_user, expires_delta=expires)
+        identity=str(user.id_user), expires_delta=expires)
     response_body = {
         "message": "Login successful",
         "access_token": access_token,
@@ -239,7 +239,7 @@ def handle_reset_password():
     if not data:
         response_body["error"] = "Invalid or expired token"
         return response_body, 401
-    
+
     user = User.query.filter_by(email=data).first()
     if not user:
         response_body["error"] = "User not found"
