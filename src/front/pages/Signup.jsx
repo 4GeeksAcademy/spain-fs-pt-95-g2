@@ -338,7 +338,11 @@ export const Signup = () => {
                             type='submit'
                             fullWidth
                             variant='contained'
-                            sx={{ py: { xs: 1, sm: 1.25 }, fontSize: { xs: '0.875rem', sm: '1rem' } }}
+                            sx={{
+                                py: { xs: 1, sm: 1.25 },
+                                fontSize: { xs: '0.875rem', sm: '1rem' },
+                                backgroundColor: '#2167a4'
+                            }}
                         >
                             Sign up
                         </Button>
@@ -352,7 +356,8 @@ export const Signup = () => {
                             startIcon={<GoogleIcon />}
                             sx={{
                                 py: { xs: 1, sm: 1.25 },
-                                fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                                fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                                color: '#2167a4'
                             }}
                         >
                             Sign up with Google

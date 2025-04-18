@@ -322,7 +322,11 @@ export const ResetPassword = () => {
                             type='submit'
                             fullWidth
                             variant='contained'
-                            sx={{ py: { xs: 1, sm: 1.25 }, fontSize: { xs: '0.875rem', sm: '1rem' } }}
+                            sx={{
+                                py: { xs: 1, sm: 1.25 },
+                                fontSize: { xs: '0.875rem', sm: '1rem' },
+                                backgroundColor: '#2167a4'
+                            }}
                         >
                             Submit
                         </Button>
