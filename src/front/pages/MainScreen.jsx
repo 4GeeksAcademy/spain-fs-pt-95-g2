@@ -18,12 +18,12 @@ import logo from "../assets/img/logo.png";
 import banner from "../assets/img/estant.png";
 import banner1 from "../assets/img/estant1.png";
 import { useNavigate } from "react-router-dom";
-import Submenu from "../components/SubMenu";
 
 const faqs = [
   {
     question: "What is EasyInventory?",
-    answer: "It is an app designed to manage inventories in a simple, collaborative, and efficient way."
+    answer:
+      "It is an app designed to manage inventories in a simple, collaborative, and efficient way."
   },
   {
     question: "Do I need to create an account to use it?",
@@ -31,41 +31,76 @@ const faqs = [
   },
   {
     question: "Can I manage multiple inventories?",
-    answer: "Yes, you can access several inventories with different roles (admin or viewer)."
+    answer:
+      "Yes, you can access several inventories with different roles (admin or viewer)."
   }
 ];
 
+const contentMap = {
+  default: (
+    <>
+      <Typography variant="body1" sx={{ mb: 2 }}>
+        EasyInventory is a modern and intuitive web app built to make inventory management easier, smarter, 
+        and more accessible — especially for small and medium businesses.
+        With EasyInventory, you can keep full control over your <strong>Products</strong>, 
+        manage your <strong>Suppliers</strong>, organize your <strong>Categories</strong>, 
+        and track multiple <strong>Inventories</strong> — all from a single, user-friendly platform.
+        Whether you run a small local store or you're part of a growing team, EasyInventory helps you:
+      </Typography>
+      Easily register and classify your products
+      Monitor stock levels and price updates in real time
+      Track transactions and movements
+      Maintain updated contact info and order history for your suppliers
+      Collaborate with different team members with personalized roles
+      Designed with efficiency and simplicity at its core, EasyInventory gives you all the tools you need to save time, reduce errors, and stay focused on what matters — your business.
+      <Typography variant="body1">
+        No complicated interfaces. No overwhelming features. Just everything you need to keep your warehouse organized and your business running smoothly.
+      </Typography>
+    </>
+  ),
+  products: (
+    <Typography variant="body1">Manage your products efficiently: add, update, categorize and monitor them all in one place.</Typography>
+  ),
+  categories: (
+    <Typography variant="body1">Organize your items using categories that help you quickly filter and locate inventory.</Typography>
+  ),
+  suppliers: (
+    <Typography variant="body1">Track supplier details, order history, and maintain strong vendor relationships.</Typography>
+  ),
+  inventories: (
+    <Typography variant="body1">Oversee multiple inventories, locations, and stock movements effortlessly.</Typography>
+  )
+};
+
 const MainScreen = () => {
   const [showFaqs, setShowFaqs] = useState(false);
+  const [contentKey, setContentKey] = useState("default");
   const navigate = useNavigate();
 
   return (
     <Box sx={{ bgcolor: "#f5f8fb", minHeight: "100vh", pt: 10, pb: 8 }}>
       <Container maxWidth="lg">
-        <Submenu />
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            gap: 2,
+            flexWrap: "wrap",
+            mb: 6
+          }}
+        >
+          <Button variant="outlined" onClick={() => setContentKey("products")} sx={{ color: "#1E65A6", borderColor: "#1E65A6" }}>Products</Button>
+          <Button variant="outlined" onClick={() => setContentKey("categories")} sx={{ color: "#1E65A6", borderColor: "#1E65A6" }}>Categories</Button>
+          <Button variant="outlined" onClick={() => setContentKey("suppliers")} sx={{ color: "#1E65A6", borderColor: "#1E65A6" }}>Suppliers</Button>
+          <Button variant="outlined" onClick={() => setContentKey("inventories")} sx={{ color: "#1E65A6", borderColor: "#1E65A6" }}>Inventories</Button>
+        </Box>
 
         <Grid container spacing={4} alignItems="center" sx={{ mt: 4 }}>
-          <Grid item xs={12}>
+          <Grid item xs={12} md={6}>
             <Typography variant="h3" fontWeight="800" color="#1E65A6" gutterBottom>
               Easy Inventory
             </Typography>
-
-            <Typography variant="body1" sx={{ mb: 2 }}>
-              EasyInventory is a modern and intuitive web app built to make inventory management easier, smarter, and more accessible — 
-              especially for small and medium businesses.
-              With EasyInventory, you can keep full control over your <strong>Products</strong>, manage your <strong>Suppliers</strong>, 
-              organize your <strong>Categories</strong>,and track multiple <strong>Inventories</strong> — all from a single, user-friendly platform.
-              Whether you run a small local store or you're part of a growing team, EasyInventory helps you:
-            </Typography>
-
-            <Typography variant="body1" sx={{ mb: 2 }}>Easily register and classify your products
-              Monitor stock levels and price updates in real time
-              Track transactions and movements
-              Maintain updated contact info and order history for your suppliers
-              Collaborate with different team members with personalized roles
-              Designed with efficiency and simplicity at its core, EasyInventory gives you all the tools you need to save time, reduce errors, and stay focused on what matters — your business.
-              No complicated interfaces. No overwhelming features. Just everything you need to keep your warehouse organized and your business running smoothly.
-            </Typography>
+            {contentMap[contentKey]}
           </Grid>
         </Grid>
 

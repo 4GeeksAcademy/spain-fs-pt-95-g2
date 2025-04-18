@@ -1,16 +1,27 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import { AppBar, Toolbar, Button, Box, Typography, IconButton, Fade } from "@mui/material";
+import { AppBar, Toolbar, Button, Box, Typography, IconButton } from "@mui/material";
 import icono from "../assets/img/solologo.png";
 
 export const Navbar = () => {
   const [isLogged, setIsLogged] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     setIsLogged(!!token);
   }, []);
+
+  const handleLogoClick = () => {
+    if (location.pathname === "/") {
+      localStorage.setItem("resetContent", "true");
+      window.location.reload();
+    } else {
+      navigate("/");
+    }
+  };
 
   return (
     <AppBar
@@ -21,24 +32,32 @@ export const Navbar = () => {
         borderBottom: "1px solid #ccc",
         paddingY: 1,
         px: { xs: 2, md: 6 },
-        zIndex: 1201,
+        zIndex: 1201
       }}
     >
       <Toolbar sx={{ justifyContent: "space-between" }}>
-        {/* LOGO + Title */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <Link to="/">
-            <img src={icono} alt="EasyInventory" style={{ height: 42 }} />
-          </Link>
+          <img
+            src={icono}
+            alt="EasyInventory"
+            style={{ height: 42, cursor: "pointer" }}
+            onClick={handleLogoClick}
+          />
           <Typography
             variant="h6"
-            sx={{ fontWeight: "bold", color: "#1E65A6", display: { xs: "none", sm: "block" } }}
+            onClick={handleLogoClick}
+            sx={{
+              fontWeight: "bold",
+              color: "#1E65A6",
+              display: { xs: "none", sm: "block" },
+              textDecoration: "none",
+              cursor: "pointer"
+            }}
           >
             EasyInventory
           </Typography>
         </Box>
 
-        {/* Menu Items */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           <Link to="/contact" style={{ textDecoration: "none" }}>
             <Button
