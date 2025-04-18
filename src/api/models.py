@@ -29,7 +29,8 @@ class User(db.Model):
             "email": self.email,
             "created_date": self.created_date,
             "expired_date": self.expired_date,
-            "staff_number": self.staff_number
+            "staff_number": self.staff_number,
+            "inventories": [i.serialize() for i in self.user_inventories]
         }
 
 
