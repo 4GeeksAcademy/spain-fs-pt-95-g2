@@ -90,11 +90,11 @@ def handle_login():
         response_body["error"] = "User account has expired"
         return response_body, 403
 
-    access_token = create_access_token(identity=user.id)
+    access_token = create_access_token(identity=user.id_user)
     response_body = {
         "message": "Login successful",
         "access_token": access_token,
-        "user_id": user.id,
+        "user_id": user.id_user,
         "username": user.username,
         "email": user.email
     }
@@ -124,13 +124,13 @@ def handle_users_by_id(id_user):
         return response_body, 405
 
     user = db.session.execute(
-        db.select(User).where(User.id == id_user)).scalar()
+        db.select(User).where(User.id_user == id_user)).scalar()
     if not user:
-        response_body["error"] = {f"{id_user} not found."}
+        response_body["error"] = f"{id_user} not found."
         return response_body, 404
 
     response_body["result"] = user.serialize()
-    response_body["message"] = {f"{id_user} user"}
+    response_body["message"] = f"{id_user} user"
     return response_body, 200
 
 
