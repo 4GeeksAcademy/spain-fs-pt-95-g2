@@ -9,6 +9,9 @@ import MainScreen from "./pages/MainScreen";
 import { Demo } from "./pages/Demo";
 import Profile from "./pages/Profile";
 import ExternalProducts from "./pages/ExternalProducts";
+import { Signin } from "./pages/Signin";
+import { Signup } from "./pages/Signup";
+import { ResetPassword } from "./pages/ResetPassword";
 
  // CreateRoutesFromElements function allows you to build route elements declaratively.
     // Create your routes here, if you want to keep the Navbar and Footer in all views, add your new routes inside the containing Route.
@@ -24,6 +27,9 @@ export const router = createBrowserRouter(
       <Route path="/demo" element={<Demo />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/external-products" element={<ExternalProducts />} />
+      <Route path="/signin" element={<Signin />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
     </Route>
   )
 );

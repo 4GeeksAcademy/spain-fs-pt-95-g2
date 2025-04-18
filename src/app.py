@@ -14,6 +14,7 @@ from api.admin import setup_admin
 from api.commands import setup_commands
 from datetime import timedelta
 from flask_jwt_extended import JWTManager
+from flask_dance.contrib.google import make_google_blueprint, google
 
 # from models import Person
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
@@ -25,7 +26,7 @@ CORS(app, resources={r"/api/*": {"origins": "https://potential-waddle-g47wg4476w
 # Setup the Flask-JWT-Extended extension
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET", "super_secret")
 print(app.config["JWT_SECRET_KEY"])
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=24)
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 if not app.config["JWT_SECRET_KEY"]:
     raise ValueError("JWT_SECRET_KEY not configured")
 jwt = JWTManager(app)
@@ -35,6 +36,22 @@ app.config["USTS_SECRET_KEY"] = os.getenv("USTS_SECRET", "other_super_secret")
 if not app.config["USTS_SECRET_KEY"]:
     raise ValueError("USTS_SECRET_KEY not configured")
 serializer = SerializerSingleton.initialize(app.config["USTS_SECRET_KEY"])
+
+# Allow OAuth over HTTP (Development only)
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+
+# Configure the blueprint correctly
+google_bp = make_google_blueprint(
+    client_id = os.getenv("GOOGLE_CLIENT_ID"),
+    client_secret = os.getenv("GOOGLE_CLIENT_SECRET"),
+    redirect_to='google_login_callback',
+    scope=[
+        "openid", 
+        "https://www.googleapis.com/auth/userinfo.profile",
+        "https://www.googleapis.com/auth/userinfo.email"
+    ]
+)
+app.register_blueprint(google_bp, url_prefix="/google_login")
 
 # database condiguration
 db_url = os.getenv("DATABASE_URL")
