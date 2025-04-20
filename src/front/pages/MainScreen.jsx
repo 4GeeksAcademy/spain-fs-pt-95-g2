@@ -59,10 +59,10 @@ const contentMap = {
     </>
   ),
   products: (
-    <Typography variant="body1">Manage your products efficiently: add, update, categorize and monitor them all in one place.</Typography>
+    <Typography variant="body1">Here you'll find a variety of products with various visible features, as well as control over them. You can edit, add, or delete them, depending on your role.</Typography>
   ),
   categories: (
-    <Typography variant="body1">Organize your items using categories that help you quickly filter and locate inventory.</Typography>
+    <Typography variant="body1">Organize your items with categories that help you quickly filter and locate inventory. Add or remove items in seconds—everything organized, easy.</Typography>
   ),
   suppliers: (
     <Typography variant="body1">Track supplier details, order history, and maintain strong vendor relationships.</Typography>
