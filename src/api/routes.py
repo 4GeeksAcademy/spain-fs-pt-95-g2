@@ -24,7 +24,6 @@ def hash_password(password: str) -> str:
     encoded_password = password.encode(PWD_ENCODE_FMT)
     hashed_password = bcrypt.hashpw(encoded_password, bcrypt.gensalt())
     return hashed_password.decode(PWD_ENCODE_FMT)
- return password
 
 @api.route("/signup", methods=["POST"])
 def handle_signup():
