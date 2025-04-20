@@ -3,7 +3,7 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 """
 import os
 from flask import Flask, request, jsonify, url_for, Blueprint, redirect
-from api.models import db, User, UserInventory, Inventory , Product, Category
+from api.models import db, User, UserInventory, Inventory , Product, Category, Transaction
 from api.utils import generate_sitemap, APIException, SerializerSingleton, send_email
 from datetime import datetime, timedelta
 from flask_cors import CORS
@@ -61,8 +61,8 @@ def handle_signup():
     db.session.commit()
     response_body["message"] = "User created successfully!"
     return response_body, 201
-  
-  
+
+
 @api.route("/login", methods=["POST"])
 def handle_login():
     response_body = {}
@@ -254,16 +254,18 @@ def handle_reset_password():
     db.session.commit()
     response_body["message"] = "Password reset succesfully"
     return response_body, 200
-  
+
 ##############
 # PRODUCTS
 ##############
+
 
 @api.route("/products", methods=["GET"])
 @jwt_required()
 def get_products():
     products = db.session.query(Product).all()
     return jsonify([p.serialize() for p in products]), 200
+
 
 @api.route("/products/<int:id>", methods=["GET"])
 @jwt_required()
@@ -273,15 +275,15 @@ def get_product(id):
         return jsonify({"error": "Producto no encontrado"}), 404
     return jsonify(product.serialize()), 200
 
+
 @api.route("/products", methods=["POST"])
 @jwt_required()
 def create_product():
     data = request.get_json()
     try:
         new_product = Product(
-            name = data["name"],
-            price = data["price"],
-            quantity = data["quantity"],
+            name=data["name"],
+            price=data["price"],
             category_id=data["category_id"],
             inventories_id=data["inventories_id"]
         )
@@ -290,7 +292,8 @@ def create_product():
         return jsonify(new_product.serialize()), 201
     except Exception as e:
         db.session.rollback()
-        return jsonify({"error" : str(e)}), 400
+        return jsonify({"error": str(e)}), 400
+
 
 @api.route("/products/<int:id>", methods=["PUT"])
 @jwt_required()
@@ -303,16 +306,17 @@ def update_product(id):
     try:
         product.name = data.get("name", product.name)
         product.price = data.get("price", product.price)
-        product.quantity = data.get("quantity", product.quantity)
         product.category_id = data.get("category_id", product.category_id)
-        product.inventories_id = data.get("inventories_id", product.inventories_id)
+        product.inventories_id = data.get(
+            "inventories_id", product.inventories_id)
 
         db.session.commit()
         return jsonify(product.serialize()), 200
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 400
-    
+
+
 @api.route("/products/<int:id>", methods=["DELETE"])
 @jwt_required()
 def delete_product(id):
@@ -328,32 +332,53 @@ def delete_product(id):
 # INVENTORY
 ##############
 
+
 @api.route("/inventories", methods=["GET"])
 @jwt_required()
 def get_inventories():
     inventories = db.session.query(Inventory).all()
-    return jsonify( [i.serialize() for i in inventories] ) , 200
+    return jsonify([i.serialize() for i in inventories]), 200
+
 
 
 @api.route("/inventories/<int:id>", methods=["GET"])
 @jwt_required()
 def get_inventory(id):
-    inventory = db.session.get( Inventory , id )
+    inventory = db.session.get(Inventory, id)
     if not inventory:
-        return jsonify( {"error": "Inventario no encontrado"} ), 404
-    return jsonify( inventory.serialize() ), 200
+        return jsonify({"error": "Inventario no encontrado"}), 404
+    return jsonify(inventory.serialize()), 200
+
 
 @api.route("/inventories", methods=["POST"])
 @jwt_required()
 def create_inventory():
     data = request.get_json()
-    
+    user_id = get_jwt_identity()
+
+    try:
+        new_inventory = Inventory(
+            name=data["name"],
+            cif=data["cif"],
+            location=data["location"],
+            created_at=data.get("created_at"),
+            sector=data["sector"],
+            owner_id=user_id
+        )
+        db.session.add(new_inventory)
+        db.session.commit()
+        return jsonify(new_inventory.serialize()), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 400
+
+
 @api.route("/inventories/<int:id>", methods=["PUT"])
 @jwt_required()
 def update_inventory(id):
-    inventory = db.session.get(Inventory , id)
+    inventory = db.session.get(Inventory, id)
     if not inventory:
-        return jsonify( {"error": "Inventario no encontrado"}), 404
+        return jsonify({"error": "Inventario no encontrado"}), 404
 
     data = request.get_json()
     try:
@@ -365,36 +390,40 @@ def update_inventory(id):
         return jsonify(inventory.serialize()), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify( {"error": str(e)} ), 400
-    
+        return jsonify({"error": str(e)}), 400
+
+
 @api.route("/inventories/<int:id>", methods=["DELETE"])
 @jwt_required()
 def delete_inventory(id):
     inventory = db.session.get(Inventory, id)
     if not inventory:
-        return jsonify( {"error": "Inventario no encontrado"} ), 404
+        return jsonify({"error": "Inventario no encontrado"}), 404
 
-    db.session.delete( inventory )
+    db.session.delete(inventory)
     db.session.commit()
-    return jsonify( {"message": "Inventario eliminado"} ), 200
+    return jsonify({"message": "Inventario eliminado"}), 200
 
 ##############
 # CATEGORY
 ##############
 
+
 @api.route("/categories", methods=["GET"])
 @jwt_required()
 def get_categories():
     categories = db.session.query(Category).all()
-    return jsonify( [c.serialize() for c in categories] ), 200
+    return jsonify([c.serialize() for c in categories]), 200
+
 
 @api.route("/categories/<int:id>", methods=["GET"])
 @jwt_required()
 def get_category(id):
     category = db.session.get(Category, id)
     if not category:
-        return jsonify( {"error": "Categoria no encontrada"} ), 404
-    return jsonify( category.serialize() ), 200
+        return jsonify({"error": "Categoria no encontrada"}), 404
+    return jsonify(category.serialize()), 200
+
 
 @api.route("/categories", methods=["POST"])
 @jwt_required()
@@ -402,11 +431,144 @@ def create_category():
     data = request.get_json()
     try:
         new_category = Category(
-            name = data["name"],
-            description = data["description"]
+            name=data["name"],
+            description=data["description"]
         )
+        db.session.add(new_category)
+        db.session.commit()
         return jsonify(new_category.serialize()), 201
     except Exception as e:
         db.session.rollback()
-        return jsonify( {"error" : str(e)} ), 400
+        return jsonify({"error": str(e)}), 400
 
+
+@api.route("/categories/<int:id>", methods=["DELETE"])
+@jwt_required()
+def delete_category(id):
+    category = db.session.get(Category, id)
+    if not category:
+        return jsonify({"error": "Categoria no encontrada"}), 404
+
+    db.session.delete(category)
+    db.session.commit()
+    return jsonify({"message": "Categoria eliminada"}), 200
+
+
+##############
+# TRANSACTION
+##############
+
+@api.route("/transactions", methods=["GET"])
+@jwt_required()
+def get_all_transactions():
+    transactions = Transaction.query.all()
+    return jsonify([t.serialize() for t in transactions]), 200
+
+
+@api.route("/transaction/<int:id_transaction>", methods=["GET"])
+@jwt_required()
+def get_transaction_by_id(id_transaction):
+    transaction = Transaction.query.get(id_transaction)
+    if not transaction:
+        return jsonify({"error": "Transaction not found"}), 404
+    return jsonify(transaction.serialize()), 200
+
+
+@api.route("/transaction", methods=["POST"])
+@jwt_required()
+def create_transaction():
+    data = request.get_json()
+
+    required_fields = ["product_id", "inventories_id",
+                       "quantity", "transaction_type"]
+    for field in required_fields:
+        if field not in data:
+            return jsonify({"error": f"{field} is required"}), 400
+
+    try:
+        new_transaction = Transaction(
+            product_id=data["product_id"],
+            inventories_id=data["inventories_id"],
+            quantity=data["quantity"],
+            transaction_type=data["transaction_type"],
+            created_at=datetime.utcnow()
+        )
+        db.session.add(new_transaction)
+        db.session.commit()
+        return jsonify(new_transaction.serialize()), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 400
+
+
+@api.route("/transaction/<int:id_transaction>", methods=["PUT"])
+@jwt_required()
+def update_transaction(id_transaction):
+    transaction = Transaction.query.get(id_transaction)
+    if not transaction:
+        return jsonify({"error": "Transaction not found"}), 404
+
+    data = request.get_json()
+
+    try:
+        transaction.product_id = data.get("product_id", transaction.product_id)
+        transaction.inventories_id = data.get(
+            "inventories_id", transaction.inventories_id)
+        transaction.quantity = data.get("quantity", transaction.quantity)
+        transaction.transaction_type = data.get(
+            "transaction_type", transaction.transaction_type)
+        db.session.commit()
+        return jsonify(transaction.serialize()), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 400
+
+
+@api.route("/transaction/<int:id_transaction>", methods=["DELETE"])
+@jwt_required()
+def delete_transaction(id_transaction):
+    transaction = Transaction.query.get(id_transaction)
+    if not transaction:
+        return jsonify({"error": "Transaction not found"}), 404
+
+    try:
+        db.session.delete(transaction)
+        db.session.commit()
+        return jsonify({"message": "Transaction deleted"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 400
+
+
+##############
+# STOCK
+##############
+
+@api.route("/products/stock", methods=["GET"])
+@jwt_required()
+def get_products_with_stock():
+    try:
+        products = Product.query.all()
+        result = []
+
+        for product in products:
+            entradas = sum(
+                t.quantity for t in product.transactions if t.transaction_type == "entrada"
+            )
+            salidas = sum(
+                t.quantity for t in product.transactions if t.transaction_type == "salida"
+            )
+            stock = entradas - salidas
+
+            result.append({
+                "id_product": product.id_product,
+                "name": product.name,
+                "price": float(product.price),
+                "stock": stock,
+                "category_id": product.category_id,
+                "inventories_id": product.inventories_id,
+            })
+
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

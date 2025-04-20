@@ -4,6 +4,8 @@ import {
   Route,
 } from "react-router-dom";
 
+{/* Nested Routes: Defines sub-routes within the BaseHome component. */ }
+
 import { Layout } from "./pages/Layout";
 import MainScreen from "./pages/MainScreen";
 import { Demo } from "./pages/Demo";
@@ -12,6 +14,7 @@ import ExternalProducts from "./pages/ExternalProducts";
 import { Signin } from "./pages/Signin";
 import { Signup } from "./pages/Signup";
 import { ResetPassword } from "./pages/ResetPassword";
+import Navigation from "./components/Navigation";
 
  // CreateRoutesFromElements function allows you to build route elements declaratively.
     // Create your routes here, if you want to keep the Navbar and Footer in all views, add your new routes inside the containing Route.
@@ -27,6 +30,7 @@ export const router = createBrowserRouter(
       <Route path="/demo" element={<Demo />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/external-products" element={<ExternalProducts />} />
+      <Route path="/navigation" element={<Navigation />} />
       <Route path="/signin" element={<Signin />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/reset-password" element={<ResetPassword />} />
