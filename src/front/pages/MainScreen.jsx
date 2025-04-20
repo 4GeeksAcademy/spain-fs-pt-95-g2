@@ -14,9 +14,9 @@ import {
   Button
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import logo from "../assets/img/logo.png";
+import logo from "../assets/img/products.png";
 import banner from "../assets/img/estant.png";
-import banner1 from "../assets/img/estant1.png";
+import banner1 from "../assets/img/suppliers.png";
 import { useNavigate } from "react-router-dom";
 
 const faqs = [
