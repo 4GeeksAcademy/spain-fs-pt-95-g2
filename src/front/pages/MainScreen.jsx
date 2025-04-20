@@ -40,10 +40,10 @@ const contentMap = {
   default: (
     <>
       <Typography variant="body1" sx={{ mb: 2 }}>
-        EasyInventory is a modern and intuitive web app built to make inventory management easier, smarter, 
+        EasyInventory is a modern and intuitive web app built to make inventory management easier, smarter,
         and more accessible — especially for small and medium businesses.
-        With EasyInventory, you can keep full control over your <strong>Products</strong>, 
-        manage your <strong>Suppliers</strong>, organize your <strong>Categories</strong>, 
+        With EasyInventory, you can keep full control over your <strong>Products</strong>,
+        manage your <strong>Suppliers</strong>, organize your <strong>Categories</strong>,
         and track multiple <strong>Inventories</strong> — all from a single, user-friendly platform.
         Whether you run a small local store or you're part of a growing team, EasyInventory helps you:
       </Typography>
@@ -137,18 +137,11 @@ const MainScreen = () => {
           }].map((card, index) => (
             <Grid item xs={12} md={4} key={index}>
               <Card
-                onClick={() => navigate(card.link)}
                 sx={{
                   height: "100%",
-                  cursor: "pointer",
-                  transition: "0.3s",
                   display: "flex",
                   flexDirection: "column",
-                  justifyContent: "space-between",
-                  '&:hover': {
-                    transform: "scale(1.03)",
-                    boxShadow: 6
-                  }
+                  justifyContent: "space-between"
                 }}
               >
                 <CardMedia component="img" height="180" image={card.image} alt={card.title} />
