@@ -7,7 +7,7 @@ export const useCategories = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NTE0MTU2MywianRpIjoiZGM1YjIyYmItZTI5Zi00MWUxLWIyYmItYzE0YmIxMTE1OTJlIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NDUxNDE1NjMsImNzcmYiOiIxZjMzMjMwZi02ZTlmLTQyZjQtOWRiZS0zNGYxMTJjMTUzY2MiLCJleHAiOjE3NDUyMjc5NjN9.CmaUwJ0bos5O41kZoSMNKgHHIwWamGJcwpkj6A9PVuU"
+  const token = localStorage.getItem("token");
 
   const fetchCategories = async () => {
     setLoading(true);

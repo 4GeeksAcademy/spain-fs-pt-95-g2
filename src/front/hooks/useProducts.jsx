@@ -7,14 +7,16 @@ export const useProducts = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NTE0MTU2MywianRpIjoiZGM1YjIyYmItZTI5Zi00MWUxLWIyYmItYzE0YmIxMTE1OTJlIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NDUxNDE1NjMsImNzcmYiOiIxZjMzMjMwZi02ZTlmLTQyZjQtOWRiZS0zNGYxMTJjMTUzY2MiLCJleHAiOjE3NDUyMjc5NjN9.CmaUwJ0bos5O41kZoSMNKgHHIwWamGJcwpkj6A9PVuU";
+const token = localStorage.getItem("token");
 
 
   const fetchProducts = async () => {
     setLoading(true);
     setError("");
     try {
+      
       const response = await fetch(`${API_URL}api/products`, {
+
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -112,6 +114,28 @@ export const useProducts = () => {
   };
 
 
+  const fetchProductsWithStock = async () => {
+    setLoading(true);
+    setError("");
+  
+    try {
+      const response = await fetch(`${API_URL}/api/products/stock`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      if (!response.ok) throw new Error("Failed to fetch products with stock");
+  
+      const data = await response.json();
+      setProducts(data);
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   useEffect(() => {
     fetchProducts();
@@ -127,6 +151,7 @@ export const useProducts = () => {
     fetchProductsId,
     createProduct,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    fetchProductsWithStock
   };
 };

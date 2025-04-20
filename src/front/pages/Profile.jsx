@@ -1,46 +1,87 @@
 import React, { useEffect, useState } from "react";
+import {
+  Container,
+  Typography,
+  Card,
+  CardContent,
+  Box,
+  List,
+  ListItem,
+  ListItemText,
+  Divider,
+} from "@mui/material";
+import logo from "../assets/img/logo.png";
 
 const Profile = () => {
   const [user, setUser] = useState(null);
-
-  const PERMISSIONS = {
-    1: "Visualizer",
-    2: "Admin"
-  };
+  const PERMISSIONS = { 1: "Visualizer", 2: "Admin" };
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
-    setUser({
-      username: "",
-      email: "",
-      created_date: "new_date",
-      inventories: [
-        { name: "tienda 1", permissions: 1 },
-        { name: "tienda 2", permissions: 2 },
-      ],
-    });
+    const loadProfile = async () => {
+      const userId = localStorage.getItem("userId");
+      if (!userId) return;
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/users/id/${userId}`);
+        const data = await response.json();
+        if (!data.result) return;
+        setUser(data.result);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    loadProfile();
   }, []);
 
-  if (!user) return <p className="text-center">Loading profile...</p>;
+  if (!user) return <Typography align="center">Loading profile...</Typography>;
 
   return (
-    <div className="profile-container">
-      <h1 className="title">User Profile</h1>
-      <div className="card">
-        <p><strong>User Name:</strong> {user.username}</p>
-        <p><strong>Email:</strong> {user.email}</p>
-        <p><strong>Member since:</strong> {user.created_date}</p>
-      </div>
-      <div className="inventories">
-        <h2 className="stores">Assigned inventories</h2>
-        <ul className="inventorieslist">
-          {user.inventories.map((inv, idx) => (
-            <li key={idx}>
-              {inv.name} - Permission: {PERMISSIONS[inv.permissions]}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
+    <Container maxWidth="md" sx={{ mt: 4 }}>
+      <Box textAlign="center" mb={3}>
+        <img src={logo} alt="EasyInventory Logo" style={{ height: 100 }} />
+        <Typography variant="h4" fontWeight="bold" mt={2}>
+          User Profile
+        </Typography>
+      </Box>
+
+      <Card variant="outlined" sx={{ mb: 4 }}>
+        <CardContent>
+          <Typography><strong>User ID:</strong> {user.id_user}</Typography>
+          <Typography><strong>User Name:</strong> {user.username}</Typography>
+          <Typography><strong>Email:</strong> {user.email}</Typography>
+          <Typography>
+            <strong>Created Date:</strong>{" "}
+            {new Date(user.created_date).toLocaleDateString()}
+          </Typography>
+          <Typography>
+            <strong>Expired Date:</strong>{" "}
+            {user.expired_date ? new Date(user.expired_date).toLocaleDateString() : "N/A"}
+          </Typography>
+          <Typography><strong>Staff Number:</strong> {user.staff_number}</Typography>
+        </CardContent>
+      </Card>
+
+      {user.inventories && user.inventories.length > 0 && (
+        <Box>
+          <Typography variant="h5" fontWeight="bold" gutterBottom>
+            Assigned Inventories
+          </Typography>
+          <List>
+            {user.inventories.map((inv, idx) => (
+              <React.Fragment key={idx}>
+                <ListItem>
+                  <ListItemText
+                    primary={`${inv.inventory.name} (${inv.inventory.location})`}
+                    secondary={`Permission: ${PERMISSIONS[inv.permissions]}`}
+                  />
+                </ListItem>
+                {idx < user.inventories.length - 1 && <Divider />}
+              </React.Fragment>
+            ))}
+          </List>
+        </Box>
+      )}
+    </Container>
   );
 };
 

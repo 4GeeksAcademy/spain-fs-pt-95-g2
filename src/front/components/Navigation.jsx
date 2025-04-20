@@ -1,5 +1,5 @@
-import React, {useState} from "react";
-import { Router, Link } from "react-router-dom";
+
+import React, { useState } from "react";
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box'
@@ -8,6 +8,9 @@ import Suppliers from "./Suppliers";
 import ProductDetails from "./ProductDetails";
 import  { Button }  from "@mui/material";
 import ProductList from "../pages/ProductList";
+import Categories from "./Categories";
+import TransactionList from "./TransactionList";
+
 
 function OnePanel(props) {
     const { children, value, index, ...other } = props; 
@@ -46,26 +49,32 @@ const Navigation = () => {
 
     return (
         <>
-                <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                    <Tabs value={value} onChange={handleChange} variant="scrollable" scrollButtons="auto" aria-label="scrollable auto tabs">
-                        <Tab label="Suppliers" {...getTabsProps(0)} />
-                        <Tab label="Products" {...getTabsProps(1)} />
-                        <Tab label="Feature Name" {...getTabsProps(2)} />
-                        <Tab label="Feature Name" {...getTabsProps(3)} />
-                    </Tabs>
-                </Box>
-                <OnePanel value={value} index={0}>
-                    <Suppliers></Suppliers>
-                </OnePanel>
-                <OnePanel value={value} index={1}>
-                    <ProductDetails></ProductDetails>
-                </OnePanel>
-                <OnePanel value={value} index={2}>
-                    <ProductList/>
-                </OnePanel>
-                <OnePanel value={value} index={3}>
-                    Feature
-                </OnePanel>
+
+            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <Tabs value={value} onChange={handleChange} variant="scrollable" scrollButtons="auto" aria-label="scrollable auto tabs">
+                    <Tab label="Feature Name" {...getTabsProps(0)} />
+                    <Tab label="Feature Name" {...getTabsProps(1)} />
+                    <Tab label="Products" {...getTabsProps(2)} />
+                    <Tab label="Categories" {...getTabsProps(3)} />
+                    <Tab label="Transactions" {...getTabsProps(4)} />
+                </Tabs>
+            </Box>
+            <OnePanel value={value} index={0}>
+                Feature
+            </OnePanel>
+            <OnePanel value={value} index={1}>
+                Feature
+            </OnePanel>
+            <OnePanel value={value} index={2}>
+                <ProductList />
+            </OnePanel>
+            <OnePanel value={value} index={3}>
+                <Categories />
+            </OnePanel>
+            <OnePanel value={value} index={4}>
+                <TransactionList />
+            </OnePanel>
+
         </>
     )
 }

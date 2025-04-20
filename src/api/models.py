@@ -29,19 +29,21 @@ class User(db.Model):
             "email": self.email,
             "created_date": self.created_date,
             "expired_date": self.expired_date,
-            "staff_number": self.staff_number
+            "staff_number": self.staff_number,
+            "inventories": [i.serialize() for i in self.user_inventories]
         }
 
 
 class Inventory(db.Model):
     __tablename__ = "inventories"
 
-    id_inventory: Mapped[int] = mapped_column(primary_key=True)
+    id_inventory: Mapped[int] = mapped_column(
+        primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(100))
     cif: Mapped[str] = mapped_column(String(10))
     location: Mapped[str] = mapped_column(String(100))
     created_at: Mapped[datetime] = mapped_column(
-        TIMESTAMP, default=datetime.now)
+        TIMESTAMP, default=datetime.utcnow)
     sector: Mapped[str] = mapped_column(String(100))
     owner_id: Mapped[int] = mapped_column(ForeignKey("users.id_user"))
 
@@ -89,11 +91,12 @@ class UserInventory(db.Model):
 class Category(db.Model):
     __tablename__ = "category"
 
-    id_category: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    id_category: Mapped[int] = mapped_column(
+        primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(100))
     description: Mapped[str] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(
-        TIMESTAMP, default=datetime.now)
+        TIMESTAMP, default=datetime.utcnow)
 
     products: Mapped[list["Product"]] = relationship(back_populates="category")
 
@@ -112,7 +115,6 @@ class Product(db.Model):
     id_product: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(100))
     price: Mapped[float] = mapped_column(Numeric(10, 2))
-    quantity: Mapped[int] = mapped_column()
     image_url: Mapped[str] = mapped_column(String(255), nullable=True)
     category_id: Mapped[int] = mapped_column(
         ForeignKey("category.id_category"))
@@ -133,7 +135,6 @@ class Product(db.Model):
             "id_product": self.id_product,
             "name": self.name,
             "price": float(self.price),
-            "quantity": self.quantity,
             "image_url": self.image_url,
             "category_id": self.category_id,
             "inventories_id": self.inventories_id
@@ -163,7 +164,7 @@ class Transaction(db.Model):
             "inventories_id": self.inventories_id,
             "quantity": self.quantity,
             "transaction_type": self.transaction_type,
-            "date_": self.date_
+            "created_at": self.created_at
         }
 
 
