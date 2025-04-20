@@ -14,9 +14,9 @@ import {
   Button
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import logo from "../assets/img/logo.png";
+import logo from "../assets/img/products.png";
 import banner from "../assets/img/estant.png";
-import banner1 from "../assets/img/estant1.png";
+import banner1 from "../assets/img/suppliers.png";
 import { useNavigate } from "react-router-dom";
 
 const faqs = [
@@ -40,10 +40,10 @@ const contentMap = {
   default: (
     <>
       <Typography variant="body1" sx={{ mb: 2 }}>
-        EasyInventory is a modern and intuitive web app built to make inventory management easier, smarter, 
+        EasyInventory is a modern and intuitive web app built to make inventory management easier, smarter,
         and more accessible — especially for small and medium businesses.
-        With EasyInventory, you can keep full control over your <strong>Products</strong>, 
-        manage your <strong>Suppliers</strong>, organize your <strong>Categories</strong>, 
+        With EasyInventory, you can keep full control over your <strong>Products</strong>,
+        manage your <strong>Suppliers</strong>, organize your <strong>Categories</strong>,
         and track multiple <strong>Inventories</strong> — all from a single, user-friendly platform.
         Whether you run a small local store or you're part of a growing team, EasyInventory helps you:
       </Typography>
@@ -59,10 +59,10 @@ const contentMap = {
     </>
   ),
   products: (
-    <Typography variant="body1">Manage your products efficiently: add, update, categorize and monitor them all in one place.</Typography>
+    <Typography variant="body1">Here you'll find a variety of products with various visible features, as well as control over them. You can edit, add, or delete them, depending on your role.</Typography>
   ),
   categories: (
-    <Typography variant="body1">Organize your items using categories that help you quickly filter and locate inventory.</Typography>
+    <Typography variant="body1">Organize your items with categories that help you quickly filter and locate inventory. Add or remove items in seconds—everything organized, easy.</Typography>
   ),
   suppliers: (
     <Typography variant="body1">Track supplier details, order history, and maintain strong vendor relationships.</Typography>
@@ -137,18 +137,11 @@ const MainScreen = () => {
           }].map((card, index) => (
             <Grid item xs={12} md={4} key={index}>
               <Card
-                onClick={() => navigate(card.link)}
                 sx={{
                   height: "100%",
-                  cursor: "pointer",
-                  transition: "0.3s",
                   display: "flex",
                   flexDirection: "column",
-                  justifyContent: "space-between",
-                  '&:hover': {
-                    transform: "scale(1.03)",
-                    boxShadow: 6
-                  }
+                  justifyContent: "space-between"
                 }}
               >
                 <CardMedia component="img" height="180" image={card.image} alt={card.title} />
