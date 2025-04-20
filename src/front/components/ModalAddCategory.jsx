@@ -1,58 +1,58 @@
-import { useState } from "react"
+import { useState } from "react";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
+} from "@mui/material";
 
+const ModalAddCategory = ({ show, onClose, onSave }) => {
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
 
-const ModalAddCategory = ({ show , onClose , onSave }) => {
-    const [name , setName] = useState("");
-    const [description , setDescription] = useState("");
+  const handleSubmit = () => {
+    if (!name.trim()) return;
+    onSave({ name, description });
+    setName("");
+    setDescription("");
+    onClose();
+  };
 
-    const handleSubmit = () => {
-        if (!name.trim()) return;
-        onSave({ name, description });
-        setName("");
-        setDescription("");
-        onClose();
-    };
+  return (
+    <Dialog open={show} onClose={onClose} fullWidth maxWidth="sm">
+      <DialogTitle>Add New Category</DialogTitle>
 
-    if (!show) return null;
+      <DialogContent dividers>
+        <TextField
+          label="Category Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          fullWidth
+          required
+          sx={{ mb: 2 }}
+        />
+        <TextField
+          label="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          fullWidth
+          multiline
+          rows={3}
+        />
+      </DialogContent>
 
-    return (
-        <div className="modal d-block" tabIndex="1">
-            <div className="modal-dialog modal-dialog-centered">
-                <div className="modal-content">
-
-                    <div className="modal-header">
-                        <h5 className="modal-title">Add Category</h5>
-                        <button type="button" className="btn-close" onClick={onClose}></button>
-                    </div>
-
-                    <div className="modal-body">
-                        <div className="mb-2">
-                            <label className="form-label">Name</label>
-                            <input
-                             className="form-control"
-                             value={name}
-                             onChange={(e) => setName(e.target.value)}
-                            />
-                        </div>
-                        <div className="mb-2">
-                            <label className="form-label">Description</label>
-                            <textarea
-                             className="form-control"
-                             rows={2}
-                             value={description}
-                             onChange={(e) => setDescription(e.target.value)}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="modal-footer">
-                        <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
-                        <button className="btn btn-primary" onClick={handleSubmit}>Save</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-}
+      <DialogActions>
+        <Button onClick={onClose} color="secondary" variant="outlined">
+          Cancel
+        </Button>
+        <Button onClick={handleSubmit} color="primary" variant="contained">
+          Save
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
 
 export default ModalAddCategory;

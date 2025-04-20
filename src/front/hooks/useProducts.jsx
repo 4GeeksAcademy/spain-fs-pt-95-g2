@@ -7,7 +7,7 @@ export const useProducts = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NDY0OTIwNywianRpIjoiODQ4MGQ2NGQtZjdjZS00ZWM0LWE4YjItOGM5NTQ2ZTg3NjQwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NDQ2NDkyMDcsImNzcmYiOiI0MzQ5OTU1My04NWU2LTQxZTktYmYwZC1kMzhiMjY5NDZlOGYiLCJleHAiOjE3NDQ3MzU2MDd9.6t1pBwolQz64qPGwhhV5ASYupD3tQ_57tOZEHkW5Cco";
+  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NTE2MDg2MywianRpIjoiZmQ3YTEzZDAtNjFlNS00ZjA1LWE0MDktZjUwMTM2NWI0MjIxIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NDUxNjA4NjMsImNzcmYiOiIxZTY5NDY2My01NjE2LTQ2YTItOTQ4ZC05M2MyZWEyMjU4MmUiLCJleHAiOjE3NDUyNDcyNjN9.GhXL4jEhxgu4hJTlvZ9GJZpXtiDL0i15CHNFUiFQL0s";
 
 
   const fetchProducts = async () => {
@@ -111,6 +111,28 @@ export const useProducts = () => {
     }
   };
 
+  const fetchProductsWithStock = async () => {
+    setLoading(true);
+    setError("");
+  
+    try {
+      const response = await fetch(`${API_URL}/api/products/stock`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      if (!response.ok) throw new Error("Failed to fetch products with stock");
+  
+      const data = await response.json();
+      setProducts(data);
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
 
   useEffect(() => {
@@ -121,11 +143,13 @@ export const useProducts = () => {
   return {
     products,
     error,
+    setError,
     loading,
     fetchProducts,
     fetchProductsId,
     createProduct,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    fetchProductsWithStock
   };
 };

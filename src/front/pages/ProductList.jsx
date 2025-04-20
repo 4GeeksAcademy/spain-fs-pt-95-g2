@@ -2,96 +2,124 @@ import { useEffect, useState } from "react";
 import { useProducts } from "../hooks/useProducts";
 import ProductEditForm from "../components/ProductEditForm";
 import ProductForm from "../components/ProductForm";
+import {
+  Box,
+  Button,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  CircularProgress
+} from "@mui/material";
 
 const ProductList = () => {
-  const { products, fetchProducts, deleteProduct, loading } = useProducts();
+  const { products, fetchProductsWithStock, deleteProduct, loading } = useProducts();
   const [productEdit, setProductEdit] = useState(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
 
   useEffect(() => {
-    fetchProducts();
-  }, [])
+    fetchProductsWithStock();
+  }, []);
 
   const handleFormDelete = async (id) => {
-    const confirm = window.confirm("¿Estás seguro de eliminar este producto?");
+    const confirm = window.confirm("Are you sure you want to delete this product?");
     if (!confirm) return;
 
     try {
       await deleteProduct(id);
-      fetchProducts();
+      fetchProductsWithStock();
     } catch (error) {
       alert(error.message);
     }
   };
 
   return (
-    <div className="container mt-4">
+    <Box sx={{ mt: 4, px: 2 }}>
       {productEdit ? (
         <ProductEditForm
           product={productEdit}
           onUpdate={() => {
-            fetchProducts();
-            setProductEdit(null)
+            fetchProductsWithStock();
+            setProductEdit(null);
           }}
           onCancel={() => {
-            fetchProducts();
-            setProductEdit(null)
-          }
-          }
+            fetchProductsWithStock();
+            setProductEdit(null);
+          }}
         />
       ) : showCreateForm ? (
         <ProductForm
           onSuccess={() => {
-            fetchProducts();
-            setShowCreateForm(false)
+            fetchProductsWithStock();
+            setShowCreateForm(false);
           }}
           onCancel={() => {
-            setShowCreateForm(false)
+            setShowCreateForm(false);
           }}
         />
       ) : (
         <>
-          <h2 className="mb-4">Gestión de Productos</h2>
           {loading ? (
-            <p>Cargando productos...</p>
+            <Box display="flex" justifyContent="center" my={4}>
+              <CircularProgress />
+            </Box>
           ) : (
-            <table className="table">
-              <thead>
-                <tr>
-                  <th className="bg-dark text-white">ID</th>
-                  <th className="bg-dark text-white">Name</th>
-                  <th className="bg-dark text-white">Price</th>
-                  <th className="bg-dark text-white">Quantity</th>
-                  <th className="bg-dark text-white">Accion</th>
-                </tr>
-              </thead>
-              <tbody>
-                {products.map((product) => (
-                  <tr key={product.id_product}>
-                    <td>{product.id_product}</td>
-                    <td>{product.name}</td>
-                    <td>{product.price}</td>
-                    <td>{product.quantity}</td>
-                    <td>
-                      <button className="mx-2" onClick={() => setProductEdit(product)}>Edit</button>
-                      <button onClick={() => handleFormDelete(product.id_product)}>Delete</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow sx={{ backgroundColor: "#333" }}>
+                    <TableCell sx={{ color: "#fff" }}>ID</TableCell>
+                    <TableCell sx={{ color: "#fff" }}>Name</TableCell>
+                    <TableCell sx={{ color: "#fff" }}>Price</TableCell>
+                    <TableCell sx={{ color: "#fff" }}>Stock</TableCell>
+                    <TableCell sx={{ color: "#fff" }}>Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {products.map((product) => (
+                    <TableRow key={product.id_product}>
+                      <TableCell>{product.id_product}</TableCell>
+                      <TableCell>{product.name}</TableCell>
+                      <TableCell>${product.price}</TableCell>
+                      <TableCell>{product.stock}</TableCell>
+                      <TableCell>
+                        <Button
+                          variant="outlined"
+                          color="primary"
+                          size="small"
+                          onClick={() => setProductEdit(product)}
+                          sx={{ mr: 1 }}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          color="error"
+                          size="small"
+                          onClick={() => handleFormDelete(product.id_product)}
+                        >
+                          Delete
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
           )}
-          <div className="d-flex justify-content-center">
-            <button
-              className="btn btn-primary mb-3"
-              onClick={() => setShowCreateForm(true)}
-            >
-              Crear Producto
-            </button>
-          </div>
+
+          <Box display="flex" justifyContent="center" mt={3}>
+            <Button variant="contained" color="primary" onClick={() => setShowCreateForm(true)}>
+              Add Product
+            </Button>
+          </Box>
         </>
       )}
-    </div>
+    </Box>
   );
 };
 

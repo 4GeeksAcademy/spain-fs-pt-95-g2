@@ -1,8 +1,14 @@
-// src/components/ProductEditForm.jsx
 import { useState, useEffect } from "react";
 import { useProducts } from "../hooks/useProducts";
+import {
+  Box,
+  TextField,
+  Typography,
+  Button,
+  Alert,
+} from "@mui/material";
 
-const ProductEditForm = ( {product , onUpdate , onCancel}) => {
+const ProductEditForm = ({ product, onUpdate, onCancel }) => {
   const { updateProduct } = useProducts();
   const [formData, setFormData] = useState({
     name: "",
@@ -12,15 +18,14 @@ const ProductEditForm = ( {product , onUpdate , onCancel}) => {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if(product) {
+    if (product) {
       setFormData({
         name: product.name,
         price: product.price,
         quantity: product.quantity,
       });
-    };
+    }
   }, [product]);
-
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
@@ -38,60 +43,63 @@ const ProductEditForm = ( {product , onUpdate , onCancel}) => {
       await updateProduct(product.id_product, formData);
       onUpdate();
     } catch (error) {
-      setError("Error al actualizar el producto");
+      setError("Failed to update the product.");
     }
   };
 
   if (!product) {
-    return <p className="text-muted">Cargando producto...</p>
+    return <Typography color="text.secondary">Loading product...</Typography>;
   }
 
   return (
-    <form onSubmit={handleFormSubmit} className="p-4 m-5">
-      <h5>Editar producto: {product.name}</h5>
-      {error && <p className="text-danger">{error}</p>}
+    <Box
+      component="form"
+      onSubmit={handleFormSubmit}
+      sx={{
+        maxWidth: 500,
+        margin: "auto",
+        p: 4,
+        bgcolor: "background.paper",
+        borderRadius: 2,
+        boxShadow: 3,
+      }}
+    >
+      <Typography variant="h5" gutterBottom>
+        Edit Product: {product.name}
+      </Typography>
 
-      <div className="mb-2">
-        <label htmlFor="name" className="form-label">Name</label>
-        <input
-          type="text"
-          name="name"
-          className="form-control"
-          value={formData.name || ""}
-          onChange={handleFormChange}
-          required
-        />
-      </div>
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
-      <div className="mb-2">
-        <label htmlFor="price" className="form-label">Price</label>
-        <input
-          type="number"
-          name="price"
-          className="form-control"
-          value={formData.price || ""}
-          onChange={handleFormChange}
-          required
-        />
-      </div>
+      <TextField
+        label="Name"
+        name="name"
+        value={formData.name}
+        onChange={handleFormChange}
+        fullWidth
+        required
+        sx={{ mb: 2 }}
+      />
 
-      <div className="mb-2">
-        <label htmlFor="quantity" className="form-label">Quantity</label>
-        <input
-          type="number"
-          name="quantity"
-          className="form-control"
-          value={formData.quantity || ""}
-          onChange={handleFormChange}
-          required
-        />
-      </div>
+      <TextField
+        label="Price"
+        name="price"
+        type="number"
+        value={formData.price}
+        onChange={handleFormChange}
+        fullWidth
+        required
+        sx={{ mb: 2 }}
+      />
 
-      <div className="d-flex justify-content-between">
-        <button className="btn btn-success" type="submit">Guardar cambios</button>
-        <button className="btn btn-secondary" type="button" onClick={onCancel}>Cancelar</button>
-      </div>
-    </form>
+      <Box display="flex" justifyContent="space-between">
+        <Button type="submit" variant="contained" color="primary">
+          Save Changes
+        </Button>
+        <Button type="button" variant="outlined" onClick={onCancel}>
+          Cancel
+        </Button>
+      </Box>
+    </Box>
   );
 };
 
