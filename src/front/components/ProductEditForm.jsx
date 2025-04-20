@@ -18,14 +18,19 @@ const ProductEditForm = ({ product, onUpdate, onCancel }) => {
   const [error, setError] = useState("");
 
   useEffect(() => {
+
     if (product) {
+
       setFormData({
         name: product.name,
         price: product.price,
         quantity: product.quantity,
       });
-    }
+
+    };
   }, [product]);
+
+
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
@@ -43,11 +48,13 @@ const ProductEditForm = ({ product, onUpdate, onCancel }) => {
       await updateProduct(product.id_product, formData);
       onUpdate();
     } catch (error) {
+
       setError("Failed to update the product.");
     }
   };
 
   if (!product) {
+
     return <Typography color="text.secondary">Loading product...</Typography>;
   }
 

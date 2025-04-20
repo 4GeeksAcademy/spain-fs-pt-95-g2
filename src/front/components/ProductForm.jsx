@@ -13,6 +13,7 @@ import { useProducts } from "../hooks/useProducts";
 import { useCategories } from "../hooks/useCategories";
 import ModalAddCategory from "./ModalAddCategory";
 
+
 const ProductForm = ({ onSuccess, onCancel }) => {
   const { createProduct, error, setError } = useProducts();
   const { categories, setCategories, createCategory, fetchCategories } = useCategories();
@@ -20,6 +21,7 @@ const ProductForm = ({ onSuccess, onCancel }) => {
     name: "",
     price: "",
     quantity: "",
+    image_url: "",
     category_id: "",
     inventories_id: "1",
   });
@@ -36,9 +38,9 @@ const ProductForm = ({ onSuccess, onCancel }) => {
       setShowCategoryModal(true);
       return;
     }
-
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
+
 
   const handleModalSave = async (newCatData) => {
     try {
@@ -63,13 +65,44 @@ const ProductForm = ({ onSuccess, onCancel }) => {
         name: "",
         price: "",
         quantity: "",
+        image_url: "",
         category_id: "",
-        inventories_id: "1"
+        inventories_id: ""
       });
     } catch (error) {
-      setError("Failed to create product");
+      console.log("error", error)
+      setError("Error al crear el producto");
     }
   };
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const data = new FormData();
+    data.append("file", file);
+    data.append("upload_preset", "easyInventory");
+    data.append("cloud_name", "dttjh1qaf");
+    try{
+      const response = await fetch("https://api.cloudinary.com/v1_1/dttjh1qaf/image/upload", {
+        method: "POST",
+        body: data,
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("Cloudinary error", errorData);
+      return
+    }
+    const result = await response.json();
+    const imageURL = result.secure_url;
+
+    setFormData((prev) => ({
+      ...prev,
+      image_url: imageURL,
+  }));
+} catch (error) {
+  console.error("Error uploading image to Cloudinary", error);
+}
+};
 
   return (
     <Box
@@ -107,6 +140,16 @@ const ProductForm = ({ onSuccess, onCancel }) => {
         margin="normal"
         required
       />
+          
+        <input
+        type="file"
+        name="image_url"
+        className="form-control"
+        accept="image/*"
+        onChange={handleFileChange}
+        required
+        />
+          
 
       <FormControl fullWidth margin="normal" required>
         <InputLabel id="category-label">Category</InputLabel>

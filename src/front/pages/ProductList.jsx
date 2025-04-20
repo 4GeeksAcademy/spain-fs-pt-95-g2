@@ -32,6 +32,7 @@ const ProductList = () => {
     try {
       await deleteProduct(id);
       fetchProductsWithStock();
+
     } catch (error) {
       alert(error.message);
     }

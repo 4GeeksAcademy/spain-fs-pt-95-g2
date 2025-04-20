@@ -7,14 +7,16 @@ export const useProducts = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NTE2MDg2MywianRpIjoiZmQ3YTEzZDAtNjFlNS00ZjA1LWE0MDktZjUwMTM2NWI0MjIxIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NDUxNjA4NjMsImNzcmYiOiIxZTY5NDY2My01NjE2LTQ2YTItOTQ4ZC05M2MyZWEyMjU4MmUiLCJleHAiOjE3NDUyNDcyNjN9.GhXL4jEhxgu4hJTlvZ9GJZpXtiDL0i15CHNFUiFQL0s";
+const token = localStorage.getItem("token");
 
 
   const fetchProducts = async () => {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch(`${API_URL}/api/products`, {
+      
+      const response = await fetch(`${API_URL}api/products`, {
+
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -111,6 +113,7 @@ export const useProducts = () => {
     }
   };
 
+
   const fetchProductsWithStock = async () => {
     setLoading(true);
     setError("");
@@ -132,7 +135,6 @@ export const useProducts = () => {
       setLoading(false);
     }
   };
-
 
 
   useEffect(() => {

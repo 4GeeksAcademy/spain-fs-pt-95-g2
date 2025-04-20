@@ -3,7 +3,7 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 """
 import os
 from flask import Flask, request, jsonify, url_for, Blueprint, redirect
-from api.models import db, User, UserInventory, Inventory , Product, Category, Transaction
+from api.models import db, User, UserInventory, Inventory , Product, Category, Supplier, Transaction
 from api.utils import generate_sitemap, APIException, SerializerSingleton, send_email
 from datetime import datetime, timedelta
 from flask_cors import CORS
@@ -281,8 +281,9 @@ def create_product():
     data = request.get_json()
     try:
         new_product = Product(
-            name=data["name"],
-            price=data["price"],
+            name = data["name"],
+            price = data["price"],
+            image_url = data["image_url"],
             category_id=data["category_id"],
             inventories_id=data["inventories_id"]
         )
@@ -530,6 +531,77 @@ def delete_transaction(id_transaction):
     if not transaction:
         return jsonify({"error": "Transaction not found"}), 404
 
+
+##############
+# SUPPLIERS
+##############
+
+@api.route("/suppliers", methods= ["GET"])
+@jwt_required()
+def get_suppliers():
+    suppliers = db.session.query(Supplier).all()
+    return jsonify( [s.serialize() for s in suppliers]), 200
+
+@api.route("/suppliers", methods=  ["POST"])
+@jwt_required()
+def add_supplier():
+    data = request.get_json()
+    try:
+        new_supplier = Supplier(
+            name = data["name"],
+            contact_name = data["contact_name"],
+            email = data["email"],
+            phone = data["phone"],
+            address = data["address"]
+        )
+        db.session.add(new_supplier)
+        db.session.commit()
+        return jsonify(new_supplier.serialize()), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error" : str(e)}), 400
+
+@api.route("/suppliers/<int:id_supplier>", methods= ["GET"])
+@jwt_required()
+def get_supplier(id_supplier):
+    supplier = db.session.get(Supplier, id_supplier)
+    if not supplier:
+        return jsonify({"error": "Supplier not found"}), 404
+    return jsonify(supplier.serialize()), 200
+
+@api.route("suppliers/<int:id_supplier>", methods= ["PUT"])
+@jwt_required()
+def update_supplier(id_supplier):
+    supplier = db.session.get (Supplier, id_supplier)
+    if not supplier:
+        return jsonify({"error": "Supplier does not exist"}), 404
+    data = request.get_json()
+    try:
+        supplier.address = data.get("address", supplier.address)
+        supplier.contact_name = data.get("contact_name", supplier.contact_name)
+        supplier.email = data.get("email", supplier.email)
+        supplier.name = data.get("name", supplier.name)
+        supplier.phone = data.get("phone", supplier.phone)
+
+        db.session.commit()
+        return jsonify(supplier.serialize()), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 400
+
+@api.route("suppliers/<int:id_supplier>", methods= ["DELETE"])
+@jwt_required()
+def delete_supplier(id_supplier):
+    supplier= db.session.get(Supplier, id_supplier)
+    if not supplier:
+        return jsonify({"error": "Supplier does not exist"}), 404
+    db.session.delete(supplier)
+    db.session.commit()
+    return jsonify({"message": "Supplier deleted"}), 200
+    
+
+
+
     try:
         db.session.delete(transaction)
         db.session.commit()
@@ -571,3 +643,4 @@ def get_products_with_stock():
         return jsonify(result), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+

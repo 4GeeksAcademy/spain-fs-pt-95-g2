@@ -1,14 +1,19 @@
+
 import React, { useState } from "react";
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box'
 import PropTypes from "prop-types";
+import Suppliers from "./Suppliers";
+import ProductDetails from "./ProductDetails";
+import  { Button }  from "@mui/material";
 import ProductList from "../pages/ProductList";
 import Categories from "./Categories";
 import TransactionList from "./TransactionList";
 
+
 function OnePanel(props) {
-    const { children, value, index, ...other } = props; //el ...other es necesario para materialUI porque añade otros props sin necesidad de escribirlos
+    const { children, value, index, ...other } = props; 
 
     return (
         <div
@@ -44,6 +49,7 @@ const Navigation = () => {
 
     return (
         <>
+
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                 <Tabs value={value} onChange={handleChange} variant="scrollable" scrollButtons="auto" aria-label="scrollable auto tabs">
                     <Tab label="Feature Name" {...getTabsProps(0)} />
