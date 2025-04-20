@@ -90,11 +90,11 @@ def handle_login():
         response_body["error"] = "User account has expired"
         return response_body, 403
 
-    access_token = create_access_token(identity=user.id)
+    access_token = create_access_token(identity=str(user.id_user))
     response_body = {
         "message": "Login successful",
         "access_token": access_token,
-        "user_id": user.id,
+        "user_id": user.id_user,
         "username": user.username,
         "email": user.email
     }
@@ -219,6 +219,7 @@ def create_product():
             name = data["name"],
             price = data["price"],
             quantity = data["quantity"],
+            image_url = data["image_url"],
             category_id=data["category_id"],
             inventories_id=data["inventories_id"]
         )
@@ -351,7 +352,7 @@ def create_category():
 ##############
 
 @api.route("/suppliers", methods= ["GET"])
-@jwt_required()
+#@jwt_required()
 def get_suppliers():
     suppliers = db.session.query(Supplier).all()
     return jsonify( [s.serialize() for s in suppliers]), 200

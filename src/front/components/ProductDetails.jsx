@@ -16,7 +16,7 @@ const ProductDetails = () => {
                         </div>
                     ))
                 ) : (
-                    <p>No hay productos</p>
+                    <p>Products are ampty</p>
                 )
                 }
             </div>

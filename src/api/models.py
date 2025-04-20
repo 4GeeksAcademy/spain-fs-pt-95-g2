@@ -89,7 +89,7 @@ class UserInventory(db.Model):
 class Category(db.Model):
     __tablename__ = "category"
 
-    id_category: Mapped[int] = mapped_column(primary_key=True)
+    id_category: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(100))
     description: Mapped[str] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(
@@ -170,7 +170,7 @@ class Transaction(db.Model):
 class Supplier(db.Model):
     __tablename__ = "suppliers"
 
-    id_supplier: Mapped[int] = mapped_column(primary_key=True)
+    id_supplier: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(100))
     contact_name: Mapped[str] = mapped_column(String(100))
     email: Mapped[str] = mapped_column(String(100))

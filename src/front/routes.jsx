@@ -10,6 +10,7 @@ import { Single } from "./pages/Single";
 import { Demo } from "./pages/Demo";
 import Profile from "./pages/Profile";
 import ExternalProducts from "./pages/ExternalProducts";
+import Navigation from "./components/Navigation";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -25,6 +26,7 @@ export const router = createBrowserRouter(
       <Route path="/demo" element={<Demo />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/external-products" element={<ExternalProducts />} />
+      <Route path="/Navigation" element={<Navigation/>} />
     </Route>
   )
 );

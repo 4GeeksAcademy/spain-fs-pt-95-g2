@@ -6,7 +6,8 @@ import Box from '@mui/material/Box'
 import PropTypes from "prop-types";
 import Suppliers from "./Suppliers";
 import ProductDetails from "./ProductDetails";
-import Cloudinary from "./Cloudinary";
+import  { Button }  from "@mui/material";
+import ProductList from "../pages/ProductList";
 
 function OnePanel(props) {
     const { children, value, index, ...other } = props; 
@@ -45,7 +46,7 @@ const Navigation = () => {
 
     return (
         <>
-                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     <Tabs value={value} onChange={handleChange} variant="scrollable" scrollButtons="auto" aria-label="scrollable auto tabs">
                         <Tab label="Suppliers" {...getTabsProps(0)} />
                         <Tab label="Products" {...getTabsProps(1)} />
@@ -60,7 +61,7 @@ const Navigation = () => {
                     <ProductDetails></ProductDetails>
                 </OnePanel>
                 <OnePanel value={value} index={2}>
-                    <Cloudinary/>
+                    <ProductList/>
                 </OnePanel>
                 <OnePanel value={value} index={3}>
                     Feature

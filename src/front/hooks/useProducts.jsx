@@ -7,14 +7,14 @@ export const useProducts = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NDY0OTIwNywianRpIjoiODQ4MGQ2NGQtZjdjZS00ZWM0LWE4YjItOGM5NTQ2ZTg3NjQwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NDQ2NDkyMDcsImNzcmYiOiI0MzQ5OTU1My04NWU2LTQxZTktYmYwZC1kMzhiMjY5NDZlOGYiLCJleHAiOjE3NDQ3MzU2MDd9.6t1pBwolQz64qPGwhhV5ASYupD3tQ_57tOZEHkW5Cco";
+  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NTE0MTU2MywianRpIjoiZGM1YjIyYmItZTI5Zi00MWUxLWIyYmItYzE0YmIxMTE1OTJlIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NDUxNDE1NjMsImNzcmYiOiIxZjMzMjMwZi02ZTlmLTQyZjQtOWRiZS0zNGYxMTJjMTUzY2MiLCJleHAiOjE3NDUyMjc5NjN9.CmaUwJ0bos5O41kZoSMNKgHHIwWamGJcwpkj6A9PVuU";
 
 
   const fetchProducts = async () => {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch(`${API_URL}/api/products`, {
+      const response = await fetch(`${API_URL}api/products`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -121,6 +121,7 @@ export const useProducts = () => {
   return {
     products,
     error,
+    setError,
     loading,
     fetchProducts,
     fetchProductsId,
