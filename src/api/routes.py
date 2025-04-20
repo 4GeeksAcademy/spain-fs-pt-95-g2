@@ -2,27 +2,29 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 import os
-from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User, Inventory, Product, Category, Transaction
+from flask import Flask, request, jsonify, url_for, Blueprint, redirect
+from api.models import db, User, UserInventory, Inventory , Product, Category, Transaction
 from api.utils import generate_sitemap, APIException, SerializerSingleton, send_email
 from datetime import datetime, timedelta
 from flask_cors import CORS
 from typing import Optional
 from sqlalchemy import select
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from flask_dance.contrib.google import make_google_blueprint, google
 import requests
 import bcrypt
 
 api = Blueprint('api', __name__)
 CORS(api)
 
+PWD_ENCODE_FMT = "utf-8"
+FRONTEND_URL = os.getenv("VITE_FRONTEND_URL")
 
-def hash_password(password):
-    password = password.encode("utf-8")
-    password = bcrypt.hashpw(password, bcrypt.gensalt())
-    password = password.decode("utf-8")
-    return password
-
+def hash_password(password: str) -> str:
+    encoded_password = password.encode(PWD_ENCODE_FMT)
+    hashed_password = bcrypt.hashpw(encoded_password, bcrypt.gensalt())
+    return hashed_password.decode(PWD_ENCODE_FMT)
+ return password
 
 @api.route("/signup", methods=["POST"])
 def handle_signup():
@@ -81,7 +83,7 @@ def handle_login():
 
     user = db.session.scalars(db.select(User).filter(
         User.email.ilike(data["email"]))).first()
-    if not user or not bcrypt.checkpw(data["password"].encode('utf-8'), user.password.encode("utf-8")):
+    if not user or not bcrypt.checkpw(data["password"].encode(PWD_ENCODE_FMT), user.password.encode(PWD_ENCODE_FMT)):
         response_body["error"] = "Invalid email or password"
         return response_body, 401
     if not user.is_active:
@@ -90,16 +92,70 @@ def handle_login():
     if user.expired_date and user.expired_date < datetime.now():
         response_body["error"] = "User account has expired"
         return response_body, 403
+    if data.get("remember_me"):
+        expires = timedelta(days=31)
+    else:
+        expires = timedelta(hours=1)
 
-    access_token = create_access_token(identity=str(user.id_user))
+    access_token = create_access_token(
+        identity=str(user.id_user), expires_delta=expires)
     response_body = {
         "message": "Login successful",
         "access_token": access_token,
+        "expires_in": expires.total_seconds(),
         "user_id": user.id_user,
         "username": user.username,
         "email": user.email
     }
     return response_body, 200
+
+
+@api.route('/login_google')
+def login_google():
+    return redirect(url_for('google.login'))
+
+
+@api.route('/google_login/callback')
+def google_login_callback():
+    if 'usuario' in session:
+        return redirect(url_for('pagina_principal'))
+
+    if not google.authorized:
+        return redirect(url_for('google.login'))
+
+    resp = google.get('https://www.googleapis.com/oauth2/v3/userinfo')
+
+    if not resp.ok:
+        flash("Error al obtener información de Google. Intenta nuevamente.", "error")
+        return redirect(url_for('login'))
+
+    user_info = resp.json()
+
+    # 🔍 Imprimir la respuesta para depuración
+    print("Respuesta de Google:", user_info)
+
+    # Verificar que Google haya enviado un email
+    if 'email' not in user_info:
+        flash("Error: Google no proporcionó un email.", "error")
+        return redirect(url_for('login'))
+
+    # Obtener el ID único de Google
+    google_id = user_info.get("sub")
+
+    # Verificar si el usuario ya está registrado
+    user = collection.find_one({'email': user_info['email']})
+    if not user:
+        # Registrar nuevo usuario con Google
+        collection.insert_one({
+            'usuario': user_info.get('name', 'Usuario sin nombre'),
+            'email': user_info['email'],
+            'google_id': google_id  # Guardamos el ID único de Google
+        })
+
+    # Iniciar sesión guardando el nombre en la sesión
+    session['usuario'] = user_info.get('name', 'Usuario sin nombre')
+
+    return redirect(url_for('pagina_principal'))
 
 
 @api.route("/users", methods=["GET"])
@@ -127,11 +183,11 @@ def handle_users_by_id(id_user):
     user = db.session.execute(
         db.select(User).where(User.id_user == id_user)).scalar()
     if not user:
-        response_body["error"] = {f"{id_user} not found."}
+        response_body["error"] = f"{id_user} not found."
         return response_body, 404
 
     response_body["result"] = user.serialize()
-    response_body["message"] = {f"{id_user} user"}
+    response_body["message"] = f"{id_user} user"
     return response_body, 200
 
 
@@ -149,35 +205,41 @@ def handle_forgot_password():
 
     email = data["email"].strip().lower()
     user = db.session.scalars(db.select(User).filter(
-        User.email.ilike(data["email"]))).first()
+        User.email.ilike(email))).first()
     if not user:
         response_body["message"] = "If the email exists, you should have received the recovery message."
         return response_body, 200
 
+    username = user.username if user.username else "User"
     token = SerializerSingleton().dumps(email)
-    reset_url = url_for("api.handle_reset_password",
-                        token=token, _external=True)
+    reset_url = f"{FRONTEND_URL}reset-password?token={token}"
     send_email(
         to=user.email,
-        url=reset_url
+        url=reset_url,
+        name=username
     )
     response_body["message"] = "Recovery email sent"
     return response_body, 200
 
 
-@api.route("/reset-password/<token>", methods=["POST"])
-def handle_reset_password(token):
+@api.route("/reset-password/", methods=["POST"])
+def handle_reset_password():
     response_body = {}
     if not request.method == "POST":
         response_body["error"] = "Method not allowed."
         return response_body, 405
 
-    data = SerializerSingleton.loads(token)
+    token = request.args.get("token")
+    if not token:
+        response_body["error"] = "Missing token"
+        return response_body, 400
+
+    data = SerializerSingleton().loads(token)
     if not data:
         response_body["error"] = "Invalid or expired token"
         return response_body, 401
 
-    user = User.query.filter_by(email=data["email"]).first()
+    user = User.query.filter_by(email=data).first()
     if not user:
         response_body["error"] = "User not found"
         return response_body, 404
@@ -276,6 +338,7 @@ def delete_product(id):
 def get_inventories():
     inventories = db.session.query(Inventory).all()
     return jsonify([i.serialize() for i in inventories]), 200
+
 
 
 @api.route("/inventories/<int:id>", methods=["GET"])
