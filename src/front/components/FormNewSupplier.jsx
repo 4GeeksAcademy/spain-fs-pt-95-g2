@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Button from '@mui/material/Button';
+import { Box, TextField } from "@mui/material";
 
 const FormNewSupplier = () => {
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -39,9 +40,8 @@ const FormNewSupplier = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log("Enviando datos:", formData); // para depurar
+      console.log("Enviando datos:", formData); 
       await addNewSupplier(formData);
-      alert("Supplier added!"); // luego puedes usar snackbar
       setFormData({
         name: "",
         contact_name: "",
@@ -63,75 +63,67 @@ const FormNewSupplier = () => {
   };
 
   return (
-    <div className="container">
-    <form onSubmit={handleSubmit}>
-
-      <div className="mb-2">
-      <label>Supplier name:</label>
-      <input
-      className="form-control"
-        type="text"
+    <Box component="form" onSubmit={handleSubmit} sx={{ maxWidth: 500, mx: "auto", mt: 4 }}>
+      
+      <TextField
+        fullWidth
+        margin="normal"
+        label="Supplier Name"
         name="name"
-        value={formData.name}
+        value={formData.name || ""}
         onChange={handleInputChange}
         placeholder="e.g. Example SL."
       />
-      </div>
 
-      <div className="mb-2">
-      <label>Contact Name:</label>
-      <input
-      className="form-control"
-        type="text"
+      <TextField
+        fullWidth
+        margin="normal"
+        label="Contact Name"
         name="contact_name"
-        value={formData.contact_name}
+        value={formData.contact_name || ""}
         onChange={handleInputChange}
         placeholder="e.g. Juan Cuesta"
       />
-      </div>
 
-      <div className="mb-2">
-      <label>Email:</label>
-      <input
-      className="form-control"
+      <TextField
+        fullWidth
+        margin="normal"
         type="email"
+        label="Email"
         name="email"
-        value={formData.email}
+        value={formData.email || ""}
         onChange={handleInputChange}
         placeholder="e.g. example@example.com"
       />
-      </div>
 
-      <div className="mb-2">
-      <label>Phone:</label>
-      <input
-      className="form-control"
+      <TextField
+        fullWidth
+        margin="normal"
         type="tel"
+        label="Phone"
         name="phone"
-        value={formData.phone}
+        value={formData.phone || ""}
         onChange={handleInputChange}
         placeholder="e.g. 111333555"
       />
-      </div>
-      
-      
-      <div className="mb-2">
-      <label>Address:</label>
-      <input
-      className="form-control"
-        type="text"
+
+      <TextField
+        fullWidth
+        margin="normal"
+        label="Address"
         name="address"
-        value={formData.address}
+        value={formData.address || ""}
         onChange={handleInputChange}
         placeholder="e.g. 123 Saint Row, Springfield"
       />
-      </div>
-      <div className="mt-3">
-      <Button variant="contained">Add new supplier</Button>
-      </div>
-    </form>
-    </div>
+
+      <Box mt={3}>
+        <Button variant="contained" type="submit">
+          Add new supplier
+        </Button>
+      </Box>
+    </Box>
   );
-};
+}
 
 export default FormNewSupplier;

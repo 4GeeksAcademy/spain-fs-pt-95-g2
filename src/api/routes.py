@@ -650,6 +650,7 @@ def get_products_with_stock():
                 "name": product.name,
                 "price": float(product.price),
                 "stock": stock,
+                "image_url": product.image_url,
                 "category_id": product.category_id,
                 "inventories_id": product.inventories_id,
             })

@@ -1,21 +1,66 @@
-export const DetailedCard = ({ product }) => {
-    if (!product) return <div className="card">There are not products</div>;
+import React from "react";
+import {
+    Card,
+    CardMedia,
+    CardContent,
+    Typography,
+    Box,
+    Chip,
+} from "@mui/material";
 
-    const cardImageStyle = {
-        width: "100%",
-        height: "150px",
-        objectFit: "cover",
-        borderBottom: "1px solid #aed1d6"
+export const DetailedCard = ({ product }) => {
+    if (!product) {
+        return (
+            <Card sx={{ padding: 2, textAlign: "center" }}>
+                <Typography variant="body1" color="text.secondary">
+                    No products available
+                </Typography>
+            </Card>
+        );
     }
 
     return (
-    <div className="card">
-        <img src={product.image_url || "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Placeholder_view_vector.svg/800px-Placeholder_view_vector.svg.png"} className="card-img-top" style={cardImageStyle}></img>
-        <div className="card-body">
-            <h5>{product.name}</h5>
-            <p>{product.category_id}</p>
-            <p>Price: {product.price}</p>
-        </div>
-    </div>)
-}
+        <Card
+            sx={{
+                maxWidth: 345,
+                borderRadius: 3,
+                boxShadow: 3,
+                transition: "transform 0.2s ease-in-out",
+                "&:hover": {
+                    transform: "scale(1.02)",
+                },
+            }}
+        >
+            <CardMedia
+                component="img"
+                height="180"
+                image={
+                    product.image_url ||
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Placeholder_view_vector.svg/800px-Placeholder_view_vector.svg.png"
+                }
+                alt={product.name}
+                sx={{ borderBottom: "1px solid #e0e0e0" }}
+            />
+            <CardContent>
+                <Typography gutterBottom variant="h6" component="div">
+                    {product.name}
+                </Typography>
+
+                <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+                    <Typography variant="body2" color="text.secondary">
+                        Price:
+                    </Typography>
+                    <Chip label={`$${product.price}`} color="primary" size="small" />
+                </Box>
+
+                <Box display="flex" justifyContent="space-between" alignItems="center">
+                    <Typography variant="body2" color="text.secondary">
+                        Quantity:
+                    </Typography>
+                    <Chip label={product.stock} color="primary" size="small" />
+                </Box>
+            </CardContent>
+        </Card>
+    );
+};
 
