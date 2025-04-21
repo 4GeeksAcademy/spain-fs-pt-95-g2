@@ -13,11 +13,14 @@ import {
     styled,
     List,
     ListItem,
-    ListItemIcon
+    ListItemIcon,
+    IconButton,
+    InputAdornment,
 } from '@mui/material';
 import { SitemarkIcon } from '../components/CustomIcons';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 
 const Card = styled(MuiCard)(() => ({
@@ -71,21 +74,21 @@ const PasswordRequirements = ({ password }) => {
             validator: (pwd) => pwd.length >= 8
         },
         {
-            text: 'Contains at least one uppercase and one lowercase letter',
-            validator: (pwd) => /[a-z]/.test(pwd) && /[A-Z]/.test(pwd)
-        },
-        {
             text: 'Starts with a letter',
             validator: (pwd) => /^[A-Za-z]/.test(pwd)
         },
         {
-            text: 'Contains at least one special character (@$!%*?&.,;)',
-            validator: (pwd) => /[@$!%*?&.,;]/.test(pwd)
+            text: 'Contains at least one uppercase and one lowercase letter',
+            validator: (pwd) => /[a-z]/.test(pwd) && /[A-Z]/.test(pwd)
         },
         {
             text: 'Contains at least one number',
             validator: (pwd) => /\d/.test(pwd)
-        }
+        },
+        {
+            text: 'Contains at least one special character',
+            validator: (pwd) => /[\p{P}\p{S}]/u.test(pwd)
+        },
     ];
 
     return (
@@ -115,7 +118,6 @@ const PasswordRequirements = ({ password }) => {
     );
 };
 
-
 export const ResetPassword = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -127,6 +129,7 @@ export const ResetPassword = () => {
     const [success, setSuccess] = useState('');
     const [error, setError] = useState('');
     const [searchParams] = useSearchParams();
+    const [showPassword, setShowPassword] = useState(false);
     const token = searchParams.get('token');
     const navigate = useNavigate();
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -137,30 +140,28 @@ export const ResetPassword = () => {
         }
     }, [token]);
 
-    const validatePassword = (password) => {
+    const validatePassword = (pw) => {
+        switch (true) {
 
-        if (password.length < 8) {
-            return { validate: false, message: 'Password must be at least 8 characters long.' };
+            case pw.length < 8:
+                return { validate: false, message: 'Password must be at least 8 characters long.' };
+
+            case !/^[A-Za-z]/.test(pw):
+                return { validate: false, message: 'Password must start with a letter.' };
+
+            case !/[a-z]/.test(pw) || !/[A-Z]/.test(pw):
+                return { validate: false, message: 'Password must contain at least one uppercase and one lowercase letter.' };
+
+            case !/\d/.test(pw):
+                return { validate: false, message: 'Password must contain at least one number.' };
+
+            case !/[\p{P}\p{S}]/u.test(pw):
+                return { validate: false, message: 'Password must contain at least one special character.' };
+
+            default:
+                return { validate: true, message: 'Valid password' };
         }
-
-        if (!/[a-z]/.test(password) || !/[A-Z]/.test(password)) {
-            return { validate: false, message: 'Password must contain at least one uppercase and one lowercase letter.' };
-        }
-
-        if (!/^[A-Za-z]/.test(password)) {
-            return { validate: false, message: 'Password must start with a letter.' };
-        }
-
-        if (!/[@$!%*?&.,;]/.test(password)) {
-            return { validate: false, message: 'Password must contain at least one special character.' };
-        }
-
-        if (!/\d/.test(password)) {
-            return { validate: false, message: 'Password must contain at least one number.' };
-        }
-
-        return { validate: true, message: 'Valid password' };
-    }
+    };
 
     const validateInputs = () => {
         let isValid = true;
@@ -170,12 +171,13 @@ export const ResetPassword = () => {
             setPasswordError(true);
             setPasswordErrorMessage(passwordValidation.message);
             isValid = false;
-        }
-
-        if (password !== confirmPassword) {
+        } else if (password !== confirmPassword) {
             setConfirmPasswordError(true);
             setConfirmPasswordErrorMessage('Passwords do not match');
             isValid = false;
+        } else {
+            setPasswordError(false);
+            setPasswordErrorMessage('');
         }
 
         return isValid;
@@ -247,7 +249,7 @@ export const ResetPassword = () => {
                                 helperText={passwordErrorMessage}
                                 name='password'
                                 placeholder='••••••••'
-                                type='password'
+                                type={showPassword ? 'text' : 'password'}
                                 id='password'
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
@@ -268,6 +270,20 @@ export const ResetPassword = () => {
                                     '& .MuiInputBase-root': {
                                         height: { xs: 40, sm: 48 }
                                     }
+                                }}
+                                slotProps={{
+                                    input: {
+                                        endAdornment: (
+                                            <InputAdornment position='end'>
+                                                <IconButton
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                    edge='end'
+                                                >
+                                                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        ),
+                                    },
                                 }}
                             />
                             {showPasswordRequirements && (

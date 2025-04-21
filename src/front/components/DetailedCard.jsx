@@ -10,12 +10,11 @@ export const DetailedCard = ({ product }) => {
 
     return (
     <div className="card">
-        <img src={product.image_url || "https://thumbs.dreamstime.com/z/retrato-del-hombre-mayor-feliz-con-el-pulgar-para-arriba-16276754.jpg"} className="card-img-top" style={cardImageStyle}></img>
+        <img src={product.image_url || "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Placeholder_view_vector.svg/800px-Placeholder_view_vector.svg.png"} className="card-img-top" style={cardImageStyle}></img>
         <div className="card-body">
             <h5>{product.name}</h5>
             <p>{product.category_id}</p>
             <p>Price: {product.price}</p>
-            <p>Quantity: {product.quantity}</p>
         </div>
     </div>)
 }

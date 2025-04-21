@@ -8,14 +8,13 @@ export const useInventories = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // const token = localStorage.getItem("token");
-  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NTE2MDg2MywianRpIjoiZmQ3YTEzZDAtNjFlNS00ZjA1LWE0MDktZjUwMTM2NWI0MjIxIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NDUxNjA4NjMsImNzcmYiOiIxZTY5NDY2My01NjE2LTQ2YTItOTQ4ZC05M2MyZWEyMjU4MmUiLCJleHAiOjE3NDUyNDcyNjN9.GhXL4jEhxgu4hJTlvZ9GJZpXtiDL0i15CHNFUiFQL0s";
+  const token = localStorage.getItem("token") || sessionStorage.getItem('token');
 
   const fetchInventories = async () => {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`${API_URL}/api/inventories`, {
+      const res = await fetch(`${API_URL}api/inventories`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -32,7 +31,7 @@ export const useInventories = () => {
 
   const createInventory = async (newInventory) => {
     try {
-      const res = await fetch(`${API_URL}/api/inventories`, {
+      const res = await fetch(`${API_URL}api/inventories`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -52,7 +51,7 @@ export const useInventories = () => {
 
   const updateInventory = async (id, updatedData) => {
     try {
-      const res = await fetch(`${API_URL}/api/inventories/${id}`, {
+      const res = await fetch(`${API_URL}api/inventories/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -74,7 +73,7 @@ export const useInventories = () => {
 
   const deleteInventory = async (id) => {
     try {
-      const res = await fetch(`${API_URL}/api/inventories/${id}`, {
+      const res = await fetch(`${API_URL}api/inventories/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,

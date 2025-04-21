@@ -7,16 +7,13 @@ export const useProducts = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-const token = localStorage.getItem("token");
-
+  const token = localStorage.getItem("token") || sessionStorage.getItem('token');
 
   const fetchProducts = async () => {
     setLoading(true);
     setError("");
     try {
-      
       const response = await fetch(`${API_URL}api/products`, {
-
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -36,7 +33,7 @@ const token = localStorage.getItem("token");
     setLoading(true);
     setError("");
     try {
-      const response = await fetch(`${API_URL}/api/products/${id}`, {
+      const response = await fetch(`${API_URL}api/products/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -76,7 +73,7 @@ const token = localStorage.getItem("token");
   const updateProduct = async (productId, updatedProductData) => {
     try {
       console.log("entra")
-      const response = await fetch(`${API_URL}/api/products/${productId}`, {
+      const response = await fetch(`${API_URL}api/products/${productId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -97,7 +94,7 @@ const token = localStorage.getItem("token");
 
   const deleteProduct = async (id) => {
     try {
-      const response = await fetch(`${API_URL}/api/products/${id}`, {
+      const response = await fetch(`${API_URL}api/products/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -106,7 +103,7 @@ const token = localStorage.getItem("token");
 
       if (!response.ok) throw new Error("Error al eliminar el producto");
 
-      setProducts((prev) => prev.filter((p) => p.id !== id));
+      setProducts((prev) => prev.filter((p) => p.id_product !== id));
     } catch (error) {
       setError(error.message);
       throw error;
@@ -117,16 +114,16 @@ const token = localStorage.getItem("token");
   const fetchProductsWithStock = async () => {
     setLoading(true);
     setError("");
-  
+
     try {
-      const response = await fetch(`${API_URL}/api/products/stock`, {
+      const response = await fetch(`${API_URL}api/products/stock`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-  
+
       if (!response.ok) throw new Error("Failed to fetch products with stock");
-  
+
       const data = await response.json();
       setProducts(data);
     } catch (error) {

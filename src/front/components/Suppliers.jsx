@@ -18,7 +18,7 @@ const Suppliers = () => {
     const [dataSuppliers, setDataSuppliers] = useState([]);
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
     const [open, setOpen] = React.useState(false);
-    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NTE0MTU2MywianRpIjoiZGM1YjIyYmItZTI5Zi00MWUxLWIyYmItYzE0YmIxMTE1OTJlIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NDUxNDE1NjMsImNzcmYiOiIxZjMzMjMwZi02ZTlmLTQyZjQtOWRiZS0zNGYxMTJjMTUzY2MiLCJleHAiOjE3NDUyMjc5NjN9.CmaUwJ0bos5O41kZoSMNKgHHIwWamGJcwpkj6A9PVuU"
+    const token = localStorage.getItem("token") || sessionStorage.getItem('token');
 
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
