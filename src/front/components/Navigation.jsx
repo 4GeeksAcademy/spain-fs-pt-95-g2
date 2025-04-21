@@ -11,6 +11,8 @@ import ProductList from "../pages/ProductList";
 import Categories from "./Categories";
 import TransactionList from "./TransactionList";
 
+                                                                                                       
+
 
 function OnePanel(props) {
     const { children, value, index, ...other } = props; 
@@ -57,6 +59,8 @@ const Navigation = () => {
                     <Tab label="Products" {...getTabsProps(2)} />
                     <Tab label="Categories" {...getTabsProps(3)} />
                     <Tab label="Transactions" {...getTabsProps(4)} />
+                    
+                   
                 </Tabs>
             </Box>
             <OnePanel value={value} index={0}>

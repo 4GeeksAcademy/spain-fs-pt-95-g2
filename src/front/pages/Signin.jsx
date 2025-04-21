@@ -78,7 +78,7 @@ export const Signin = () => {
 
     useEffect(() => {
         const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-        if (token) navigate('/');
+        if (token) navigate('/navigation');
     }, []);
 
     const handleOpenDialog = () => {
@@ -148,7 +148,7 @@ export const Signin = () => {
                 sessionStorage.setItem('token', data.access_token);
             }
 
-            navigate('/');
+            navigate('/navigation');
         } catch (error) {
             console.error('Login error:', error);
         }
