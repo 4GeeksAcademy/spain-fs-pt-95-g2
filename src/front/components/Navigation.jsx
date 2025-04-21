@@ -60,7 +60,7 @@ const Navigation = () => {
                 </Tabs>
             </Box>
             <OnePanel value={value} index={0}>
-                Feature
+                <Suppliers/>
             </OnePanel>
             <OnePanel value={value} index={1}>
                 Feature
