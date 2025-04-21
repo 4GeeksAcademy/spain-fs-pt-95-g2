@@ -25,18 +25,18 @@ const ProductList = () => {
     fetchProductsWithStock();
   }, []);
 
-  const handleFormDelete = async (id) => {
-    const confirm = window.confirm("Are you sure you want to delete this product?");
-    if (!confirm) return;
+  // const handleFormDelete = async (id) => {
+  //   const confirm = window.confirm("Are you sure you want to delete this product?");
+  //   if (!confirm) return;
 
-    try {
-      await deleteProduct(id);
-      fetchProductsWithStock();
+  //   try {
+  //     await deleteProduct(id);
+  //     fetchProductsWithStock();
 
-    } catch (error) {
-      alert(error.message);
-    }
-  };
+  //   } catch (error) {
+  //     alert(error.message);
+  //   }
+  // };
 
   return (
     <Box sx={{ mt: 4, px: 2 }}>
