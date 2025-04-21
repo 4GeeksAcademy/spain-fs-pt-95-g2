@@ -20,7 +20,6 @@ const ProductForm = ({ onSuccess, onCancel }) => {
   const [formData, setFormData] = useState({
     name: "",
     price: "",
-    quantity: "",
     image_url: "",
     category_id: "",
     inventories_id: "1",
@@ -64,7 +63,6 @@ const ProductForm = ({ onSuccess, onCancel }) => {
       setFormData({
         name: "",
         price: "",
-        quantity: "",
         image_url: "",
         category_id: "",
         inventories_id: ""
