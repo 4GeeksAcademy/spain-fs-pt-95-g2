@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box'
@@ -44,9 +44,9 @@ const Navigation = () => {
     const [value, setValue] = useState(0);
 
     useEffect(() => {
-            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-            if (!token) navigate('/');
-        }, []);
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        if (!token) navigate('/');
+    }, []);
 
     const handleChange = (event, newValue) => {
         setValue(newValue);
