@@ -18,14 +18,18 @@ const Suppliers = () => {
     const [dataSuppliers, setDataSuppliers] = useState([]);
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
     const [open, setOpen] = React.useState(false);
-    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NTE0MTU2MywianRpIjoiZGM1YjIyYmItZTI5Zi00MWUxLWIyYmItYzE0YmIxMTE1OTJlIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NDUxNDE1NjMsImNzcmYiOiIxZjMzMjMwZi02ZTlmLTQyZjQtOWRiZS0zNGYxMTJjMTUzY2MiLCJleHAiOjE3NDUyMjc5NjN9.CmaUwJ0bos5O41kZoSMNKgHHIwWamGJcwpkj6A9PVuU"
+    const token = localStorage.getItem("token") || sessionStorage.getItem('token');
 
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
     const getSuppliers = async () => {
         try {
-            const response = await fetch(`${BACKEND_URL}api/suppliers`);
+            const response = await fetch(`${BACKEND_URL}api/suppliers`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                  }
+            });
             if (!response.ok) {
                 throw new Error(`Something went wrong, error: ${response.status}`);
             }
@@ -83,8 +87,8 @@ const Suppliers = () => {
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
-        width: 700,
-        height: 500,
+        width: '80vw',
+        maxheight: '90vh',
         bgcolor: 'background.paper',
         border: '1px solid grey.500',
         borderRadius: '25px',
@@ -133,12 +137,12 @@ const Suppliers = () => {
                     aria-labelledby="modal-modal-tittle"
                     aria-describedby="modal-modal-forAddSuppliers">
                     <Box sx={style}>
-                        <Typography id="modal-modal-tittle" variant="h4" component="h2">
-                            Complete the form for add a new supplier!
+                        <Typography id="modal-modal-tittle" variant="h4" component="h2" align="center">
+                            Add new supplier!
                         </Typography>
-                        <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                            <FormNewSupplier></FormNewSupplier>
-                        </Typography>
+                        <Box mt={2}>
+                            <FormNewSupplier />
+                        </Box>
                     </Box>
                 </Modal>
             </Grid>

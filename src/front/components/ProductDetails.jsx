@@ -3,7 +3,11 @@ import { DetailedCard } from "./DetailedCard";
 import { useProducts } from "../hooks/useProducts";
 
 const ProductDetails = () => {
-    const { products } = useProducts();
+    const { products, fetchProductsWithStock } = useProducts();
+
+  useEffect(() => {
+    fetchProductsWithStock();
+  }, []);
 
     return(
     <>

@@ -59,9 +59,9 @@ const Navigation = () => {
 
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                 <Tabs value={value} onChange={handleChange} variant="scrollable" scrollButtons="auto" aria-label="scrollable auto tabs">
-                    <Tab label="Feature Name" {...getTabsProps(0)} />
-                    <Tab label="Feature Name" {...getTabsProps(1)} />
-                    <Tab label="Products" {...getTabsProps(2)} />
+                    <Tab label="Products List" {...getTabsProps(0)} />
+                    <Tab label="Products Cards" {...getTabsProps(1)} />
+                    <Tab label="Suppliers List" {...getTabsProps(2)} />
                     <Tab label="Categories" {...getTabsProps(3)} />
                     <Tab label="Transactions" {...getTabsProps(4)} />
                     
@@ -69,13 +69,13 @@ const Navigation = () => {
                 </Tabs>
             </Box>
             <OnePanel value={value} index={0}>
-                Feature
+                <ProductList/>
             </OnePanel>
             <OnePanel value={value} index={1}>
-                Feature
+                <ProductDetails/>
             </OnePanel>
             <OnePanel value={value} index={2}>
-                <ProductList />
+                <Suppliers />
             </OnePanel>
             <OnePanel value={value} index={3}>
                 <Categories />
