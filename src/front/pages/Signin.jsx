@@ -148,7 +148,7 @@ export const Signin = () => {
                 sessionStorage.setItem('token', data.access_token);
             }
 
-            navigate('/');
+            navigate('/navigation');
         } catch (error) {
             console.error('Login error:', error);
         }
