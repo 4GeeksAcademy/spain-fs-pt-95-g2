@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Container,
@@ -22,8 +22,7 @@ import { useNavigate } from "react-router-dom";
 const faqs = [
   {
     question: "What is EasyInventory?",
-    answer:
-      "It is an app designed to manage inventories in a simple, collaborative, and efficient way."
+    answer: "It is an app designed to manage inventories in a simple, collaborative, and efficient way."
   },
   {
     question: "Do I need to create an account to use it?",
@@ -31,8 +30,7 @@ const faqs = [
   },
   {
     question: "Can I manage multiple inventories?",
-    answer:
-      "Yes, you can access several inventories with different roles (admin or viewer)."
+    answer: "Yes, you can access several inventories with different roles (admin or viewer)."
   }
 ];
 
@@ -41,18 +39,13 @@ const contentMap = {
     <>
       <Typography variant="body1" sx={{ mb: 2 }}>
         EasyInventory is a modern and intuitive web app built to make inventory management easier, smarter,
-        and more accessible — especially for small and medium businesses.
-        With EasyInventory, you can keep full control over your <strong>Products</strong>,
-        manage your <strong>Suppliers</strong>, organize your <strong>Categories</strong>,
-        and track multiple <strong>Inventories</strong> — all from a single, user-friendly platform.
-        Whether you run a small local store or you're part of a growing team, EasyInventory helps you:
+        and more accessible — especially for small and medium businesses. With EasyInventory, you can keep full control over your <strong>Products</strong>, manage your <strong>Suppliers</strong>, organize your <strong>Categories</strong>, and track multiple <strong>Inventories</strong> — all from a single, user-friendly platform. Whether you run a small local store or you're part of a growing team, EasyInventory helps you:
       </Typography>
-      Easily register and classify your products
-      Monitor stock levels and price updates in real time
-      Track transactions and movements
-      Maintain updated contact info and order history for your suppliers
-      Collaborate with different team members with personalized roles
-      Designed with efficiency and simplicity at its core, EasyInventory gives you all the tools you need to save time, reduce errors, and stay focused on what matters — your business.
+      <Typography variant="body1" sx={{ mb: 1 }}>Easily register and classify your products</Typography>
+      <Typography variant="body1" sx={{ mb: 1 }}>Monitor stock levels and price updates in real time</Typography>
+      <Typography variant="body1" sx={{ mb: 1 }}>Track transactions and movements</Typography>
+      <Typography variant="body1" sx={{ mb: 1 }}>Maintain updated contact info and order history for your suppliers</Typography>
+      <Typography variant="body1" sx={{ mb: 2 }}>Collaborate with different team members with personalized roles</Typography>
       <Typography variant="body1">
         No complicated interfaces. No overwhelming features. Just everything you need to keep your warehouse organized and your business running smoothly.
       </Typography>
@@ -77,8 +70,18 @@ const MainScreen = () => {
   const [contentKey, setContentKey] = useState("default");
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    if (token) navigate('/navigation');
+    const handleReset = () => {
+      setContentKey("default");
+    };
+    window.addEventListener("resetContent", handleReset);
+    return () => window.removeEventListener("resetContent", handleReset);
+  }, []);
+
   return (
-    <Box sx={{ bgcolor: "#f5f8fb", minHeight: "100vh", pt: 10, pb: 8 }}>
+    <Box sx={{ bgcolor: "#f5f8fb", minHeight: "100vh", pt: { xs: '3px', md: '32px' }, pb: 8 }}>
       <Container maxWidth="lg">
         <Box
           sx={{

@@ -1,6 +1,5 @@
 import { Outlet } from "react-router-dom";
 import ScrollToTop from "../components/ScrollToTop";
-import { Footer } from "../components/Footer";
 
 
 
@@ -8,9 +7,9 @@ import { Footer } from "../components/Footer";
 export const Layout = () => {
     return (
         <ScrollToTop>
-            
-                <Outlet />
-            <Footer />
+            <Navbar />
+            <Outlet />
+
         </ScrollToTop>
     );
 }
