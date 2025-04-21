@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import {
     Box,
     Button,
@@ -14,10 +14,13 @@ import {
     Typography,
     Stack,
     Card as MuiCard,
-    styled
+    styled,
+    IconButton,
+    InputAdornment,
 } from '@mui/material';
 import { GoogleIcon, FacebookIcon, SitemarkIcon } from '../components/CustomIcons';
 import { ForgotPassword } from '../components/ForgotPassword';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 const Card = styled(MuiCard)(() => ({
     display: 'flex',
@@ -73,6 +76,7 @@ export const Signin = () => {
     const [error, setError] = useState('');
     const [openDialog, setOpenDialog] = useState(false);
     const [rememberMe, setrememberMe] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -206,7 +210,7 @@ export const Signin = () => {
                                 helperText={passwordErrorMessage}
                                 name='password'
                                 placeholder='••••••••'
-                                type='password'
+                                type={showPassword ? 'text' : 'password'}
                                 id='password'
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
@@ -224,6 +228,20 @@ export const Signin = () => {
                                     '& .MuiInputBase-root': {
                                         height: { xs: 40, sm: 48 }
                                     }
+                                }}
+                                slotProps={{
+                                    input: {
+                                        endAdornment: (
+                                            <InputAdornment position='end'>
+                                                <IconButton
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                    edge='end'
+                                                >
+                                                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        ),
+                                    },
                                 }}
                             />
                         </FormControl>
@@ -317,13 +335,16 @@ export const Signin = () => {
                         }}
                     >
                         Don't have an account?{' '}
-                        <Link
-                            href='/signup'
-                            variant='body2'
-                            sx={{ fontWeight: 500 }}
+                        <RouterLink
+                            to="/signup"
+                            style={{
+                                fontWeight: 500,
+                                textDecoration: 'underline',
+                                color: 'primary.main'
+                            }}
                         >
                             Sign up
-                        </Link>
+                        </RouterLink>
                     </Typography>
                 </Card>
             </SignInContainer>

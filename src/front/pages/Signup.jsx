@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import {
     Box,
     Button,
@@ -15,11 +15,14 @@ import {
     styled,
     List,
     ListItem,
-    ListItemIcon
+    ListItemIcon,
+    IconButton,
+    InputAdornment,
 } from '@mui/material';
 import { GoogleIcon, FacebookIcon, SitemarkIcon } from '../components/CustomIcons';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 const Card = styled(MuiCard)(() => ({
     display: 'flex',
@@ -72,21 +75,21 @@ const PasswordRequirements = ({ password }) => {
             validator: (pwd) => pwd.length >= 8
         },
         {
-            text: 'Contains at least one uppercase and one lowercase letter',
-            validator: (pwd) => /[a-z]/.test(pwd) && /[A-Z]/.test(pwd)
-        },
-        {
             text: 'Starts with a letter',
             validator: (pwd) => /^[A-Za-z]/.test(pwd)
         },
         {
-            text: 'Contains at least one special character (@$!%*?&.,;)',
-            validator: (pwd) => /[@$!%*?&.,;]/.test(pwd)
+            text: 'Contains at least one uppercase and one lowercase letter',
+            validator: (pwd) => /[a-z]/.test(pwd) && /[A-Z]/.test(pwd)
         },
         {
             text: 'Contains at least one number',
             validator: (pwd) => /\d/.test(pwd)
-        }
+        },
+        {
+            text: 'Contains at least one special character',
+            validator: (pwd) => /[\p{P}\p{S}]/u.test(pwd)
+        },
     ];
 
     return (
@@ -119,41 +122,43 @@ const PasswordRequirements = ({ password }) => {
 export const Signup = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [username, setUsername] = useState('');
     const [emailError, setEmailError] = useState(false);
     const [emailErrorMessage, setEmailErrorMessage] = useState('');
     const [passwordError, setPasswordError] = useState(false);
     const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
+    const [confirmPasswordError, setConfirmPasswordError] = useState(false);
+    const [confirmPasswordErrorMessage, setConfirmPasswordErrorMessage] = useState('');
     const [usernameError, setUsernameError] = useState(false);
     const [usernameErrorMessage, setUsernameErrorMessage] = useState('');
     const [showPasswordRequirements, setShowPasswordRequirements] = useState(false)
+    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-    const validatePassword = (password) => {
+    const validatePassword = (pw) => {
+        switch (true) {
 
-        if (password.length < 8) {
-            return { validate: false, message: 'Password must be at least 8 characters long.' };
+            case pw.length < 8:
+                return { validate: false, message: 'Password must be at least 8 characters long.' };
+
+            case !/^[A-Za-z]/.test(pw):
+                return { validate: false, message: 'Password must start with a letter.' };
+
+            case !/[a-z]/.test(pw) || !/[A-Z]/.test(pw):
+                return { validate: false, message: 'Password must contain at least one uppercase and one lowercase letter.' };
+
+            case !/\d/.test(pw):
+                return { validate: false, message: 'Password must contain at least one number.' };
+
+            case !/[\p{P}\p{S}]/u.test(pw):
+                return { validate: false, message: 'Password must contain at least one special character.' };
+
+            default:
+                return { validate: true, message: 'Valid password' };
         }
-
-        if (!/[a-z]/.test(password) || !/[A-Z]/.test(password)) {
-            return { validate: false, message: 'Password must contain at least one uppercase and one lowercase letter.' };
-        }
-
-        if (!/^[A-Za-z]/.test(password)) {
-            return { validate: false, message: 'Password must start with a letter.' };
-        }
-
-        if (!/[@$!%*?&.,;]/.test(password)) {
-            return { validate: false, message: 'Password must contain at least one special character.' };
-        }
-
-        if (!/\d/.test(password)) {
-            return { validate: false, message: 'Password must contain at least one number.' };
-        }
-
-        return { validate: true, message: 'Valid password' };
-    }
+    };
 
     const validateInputs = () => {
         let isValid = true;
@@ -184,6 +189,10 @@ export const Signup = () => {
         if (!password || !passwordValidation.validate) {
             setPasswordError(true);
             setPasswordErrorMessage(passwordValidation.message);
+            isValid = false;
+        } else if (password !== confirmPassword) {
+            setConfirmPasswordError(true);
+            setConfirmPasswordErrorMessage('Passwords do not match');
             isValid = false;
         } else {
             setPasswordError(false);
@@ -306,7 +315,7 @@ export const Signup = () => {
                                 helperText={passwordErrorMessage}
                                 name='password'
                                 placeholder='••••••••'
-                                type='password'
+                                type={showPassword ? 'text' : 'password'}
                                 id='password'
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
@@ -327,12 +336,55 @@ export const Signup = () => {
                                         height: { xs: 40, sm: 48 }
                                     }
                                 }}
+                                slotProps={{
+                                    input: {
+                                        endAdornment: (
+                                            <InputAdornment position='end'>
+                                                <IconButton
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                    edge='end'
+                                                >
+                                                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        ),
+                                    },
+                                }}
                             />
                             {showPasswordRequirements && (
                                 <Box sx={{ mt: 1 }}>
                                     <PasswordRequirements password={password} />
                                 </Box>
                             )}
+                        </FormControl>
+                        <FormControl sx={{ mb: 2 }}>
+                            <FormLabel htmlFor='password'>Confirm new password</FormLabel>
+                            <TextField
+                                error={confirmPasswordError}
+                                helperText={confirmPasswordErrorMessage}
+                                name='confirm-password'
+                                placeholder='••••••••'
+                                type='password'
+                                id='password'
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                onFocus={() => {
+                                    setPasswordError(false);
+                                    setPasswordErrorMessage('');
+                                    setError('');
+                                }}
+                                autoComplete='confirm-new-password'
+                                required
+                                fullWidth
+                                variant='outlined'
+                                size='small'
+                                color={confirmPasswordError ? 'error' : 'primary'}
+                                sx={{
+                                    '& .MuiInputBase-root': {
+                                        height: { xs: 40, sm: 48 }
+                                    }
+                                }}
+                            />
                         </FormControl>
                         <Button
                             type='submit'
@@ -383,13 +435,16 @@ export const Signup = () => {
                         }}
                     >
                         Already have an account?{' '}
-                        <Link
-                            href='/signin'
-                            variant='body2'
-                            sx={{ fontWeight: 500 }}
+                        <RouterLink
+                            to="/signin"
+                            style={{
+                                fontWeight: 500,
+                                textDecoration: 'underline',
+                                color: 'primary.main'
+                            }}
                         >
                             Sign in
-                        </Link>
+                        </RouterLink>
                     </Typography>
                 </Card>
             </SignUpContainer>
