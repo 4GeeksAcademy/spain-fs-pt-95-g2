@@ -1,19 +1,19 @@
-
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box'
 import PropTypes from "prop-types";
 import Suppliers from "./Suppliers";
 import ProductDetails from "./ProductDetails";
-import  { Button }  from "@mui/material";
+import { Button } from "@mui/material";
 import ProductList from "../pages/ProductList";
 import Categories from "./Categories";
 import TransactionList from "./TransactionList";
+import { Logout } from "./Logout";
 
 
 function OnePanel(props) {
-    const { children, value, index, ...other } = props; 
+    const { children, value, index, ...other } = props;
 
     return (
         <div
@@ -43,6 +43,11 @@ function getTabsProps(index) {
 const Navigation = () => {
     const [value, setValue] = useState(0);
 
+    useEffect(() => {
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        if (!token) navigate('/');
+    }, []);
+
     const handleChange = (event, newValue) => {
         setValue(newValue);
     }
@@ -57,6 +62,7 @@ const Navigation = () => {
                     <Tab label="Products" {...getTabsProps(2)} />
                     <Tab label="Categories" {...getTabsProps(3)} />
                     <Tab label="Transactions" {...getTabsProps(4)} />
+                    <Logout />
                 </Tabs>
             </Box>
             <OnePanel value={value} index={0}>
