@@ -60,7 +60,7 @@ const Suppliers = () => {
 
     useEffect(() => {
         getSuppliers();
-    }, []);
+    }, [open]);
 
     const StyledTableCell = styled(TableCell)(({ theme }) => ({
         [`&.${tableCellClasses.head}`]: {
