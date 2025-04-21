@@ -7,14 +7,14 @@ export const useCategories = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("token") || sessionStorage.getItem('token');
 
   const fetchCategories = async () => {
     setLoading(true);
     setError("");
 
     try {
-      const response = await fetch(`${API_URL}/api/categories`, {
+      const response = await fetch(`${API_URL}api/categories`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -33,7 +33,7 @@ export const useCategories = () => {
 
   const createCategory = async (newCategory) => {
     try {
-      const response = await fetch(`${API_URL}/api/categories`, {
+      const response = await fetch(`${API_URL}api/categories`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -55,7 +55,7 @@ export const useCategories = () => {
 
   const updateCategory = async (id, updatedData) => {
     try {
-      const response = await fetch(`${API_URL}/api/categories/${id}`, {
+      const response = await fetch(`${API_URL}api/categories/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -79,7 +79,7 @@ export const useCategories = () => {
 
   const deleteCategory = async (id) => {
     try {
-      const response = await fetch(`${API_URL}/api/categories/${id}`, {
+      const response = await fetch(`${API_URL}api/categories/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,

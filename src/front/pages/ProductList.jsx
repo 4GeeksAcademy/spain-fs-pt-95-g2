@@ -97,14 +97,14 @@ const ProductList = () => {
                         >
                           Edit
                         </Button>
-                        <Button
+                        {/* <Button
                           variant="outlined"
                           color="error"
                           size="small"
                           onClick={() => handleFormDelete(product.id_product)}
                         >
                           Delete
-                        </Button>
+                        </Button> */}
                       </TableCell>
                     </TableRow>
                   ))}

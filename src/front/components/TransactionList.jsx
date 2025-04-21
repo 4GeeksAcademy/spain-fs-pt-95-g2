@@ -39,8 +39,6 @@ const TransactionList = () => {
                 </Box>
             ) : error ? (
                 <Typography color="error">{error}</Typography>
-            ) : transactions.length === 0 ? (
-                <Typography>No transactions found.</Typography>
             ) : (
                 <>
                     <Paper elevation={3}>
