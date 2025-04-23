@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -6,17 +6,28 @@ import {
   DialogActions,
   TextField,
   Button,
+  FormControl,
+  Select,
+  MenuItem,
+  InputLabel,
 } from "@mui/material";
+import { useInventories } from "../hooks/useInventories";
 
 const ModalAddCategory = ({ show, onClose, onSave }) => {
+  const { inventories , fetchInventories } = useInventories();
+  const [inventoryId, setInventoryId] = useState("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
 
+  useEffect(() => {
+    fetchInventories();
+  },[])
   const handleSubmit = () => {
     if (!name.trim()) return;
-    onSave({ name, description });
+    onSave({ name, description, inventories_id: inventoryId });
     setName("");
     setDescription("");
+    setInventoryId("");
     onClose();
   };
 
@@ -41,6 +52,21 @@ const ModalAddCategory = ({ show, onClose, onSave }) => {
           multiline
           rows={3}
         />
+        <FormControl fullWidth required>
+          <InputLabel id="inventory-select-label">Inventory</InputLabel>
+          <Select
+            labelId="inventory-select-label"
+            value={inventoryId}
+            label="Inventory"
+            onChange={(e) => setInventoryId(e.target.value)}
+          >
+            {inventories.map((inv) => (
+              <MenuItem key={inv.id_inventory} value={inv.id_inventory}>
+                {inv.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </DialogContent>
 
       <DialogActions>

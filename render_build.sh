@@ -8,7 +8,5 @@ npm run build
 
 pipenv install
 
-rm -rf migrations/
-./database.sh
 
 pipenv run upgrade

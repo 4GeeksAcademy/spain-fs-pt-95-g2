@@ -21,7 +21,6 @@ ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
 static_file_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../public/')
 app = Flask(__name__)
 app.url_map.strict_slashes = False
-CORS(app, resources={r"/api/*": {"origins": "https://potential-waddle-g47wg4476wpv3pgj7-3000.app.github.dev"}})
 
 # Setup the Flask-JWT-Extended extension
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET", "super_secret")
