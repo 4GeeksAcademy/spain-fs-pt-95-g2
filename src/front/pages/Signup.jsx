@@ -400,7 +400,7 @@ export const Signup = () => {
                         </Button>
                     </Box>
                     <Divider sx={{ my: 1 }}>or</Divider>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 1 }}>
+                    {/* <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 1 }}>
                         <Button
                             fullWidth
                             variant='outlined'
@@ -414,7 +414,7 @@ export const Signup = () => {
                         >
                             Sign up with Google
                         </Button>
-                        {/* <Button
+                         <Button
                             fullWidth
                             variant='outlined'
                             onClick={() => alert('Sign up with Facebook')}
@@ -425,8 +425,8 @@ export const Signup = () => {
                             }}
                         >
                             Sign up with Facebook
-                        </Button> */}
-                    </Box>
+                        </Button>
+                    </Box> */}
                     <Typography
                         sx={{
                             textAlign: 'center',
