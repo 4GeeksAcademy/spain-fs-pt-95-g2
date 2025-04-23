@@ -95,6 +95,7 @@ class Category(db.Model):
         primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(100))
     description: Mapped[str] = mapped_column(Text)
+    inventories_id: Mapped[int] = mapped_column(ForeignKey("inventories.id_inventory"))
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP, default=datetime.utcnow)
 
@@ -105,6 +106,7 @@ class Category(db.Model):
             "id_category": self.id_category,
             "name": self.name,
             "description": self.description,
+            "inventories_id": self.inventories_id,
             "created_at": self.created_at
         }
 
@@ -177,6 +179,7 @@ class Supplier(db.Model):
     email: Mapped[str] = mapped_column(String(100))
     phone: Mapped[str] = mapped_column(String(20))
     address: Mapped[str] = mapped_column(String(255))
+    owner_id: Mapped[int] = mapped_column(ForeignKey("users.id_user"))
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP, default=datetime.now)
 

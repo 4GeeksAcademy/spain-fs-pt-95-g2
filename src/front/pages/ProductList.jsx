@@ -64,7 +64,7 @@ const ProductList = () => {
         />
       ) : (
         <>
-          {loading ? (
+          { loading ? (
             <Box display="flex" justifyContent="center" my={4}>
               <CircularProgress />
             </Box>

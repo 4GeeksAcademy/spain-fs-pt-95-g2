@@ -3,7 +3,7 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 """
 import os
 from flask import Flask, request, jsonify, url_for, Blueprint, redirect
-from api.models import db, User, UserInventory, Inventory, Product, Category, Supplier, Transaction
+from api.models import db, User, UserInventory, Inventory, Product, Category, Supplier, Transaction, Order
 from api.utils import generate_sitemap, APIException, SerializerSingleton, send_email
 from datetime import datetime, timedelta
 from flask_cors import CORS
@@ -63,7 +63,7 @@ def handle_signup():
     user_info = db.session.scalars(db.select(User).filter(
         User.email.ilike(data["email"]))).first()
     default_inventory = Inventory(
-        name="Default",
+        name="inventory " + user.username,
         cif="0",
         location="Default",
         created_at=data.get("created_at"),
@@ -276,7 +276,12 @@ def handle_reset_password():
 @api.route("/products", methods=["GET"])
 @jwt_required()
 def get_products():
-    products = db.session.query(Product).all()
+    user_id = get_jwt_identity()
+    inventories = Inventory.query.filter_by(owner_id=user_id).all()
+    inventory_ids = [inv.id_inventory for inv in inventories]
+
+    products = Product.query.filter(
+        Product.inventories_id.in_(inventory_ids)).all()
     return jsonify([p.serialize() for p in products]), 200
 
 
@@ -350,8 +355,11 @@ def delete_product(id):
 @api.route("/inventories", methods=["GET"])
 @jwt_required()
 def get_inventories():
-    inventories = db.session.query(Inventory).all()
-    return jsonify([i.serialize() for i in inventories]), 200
+    user_id = get_jwt_identity()
+
+    inventories = Inventory.query.filter_by(owner_id=user_id).all()
+    result = [inventory.serialize() for inventory in inventories]
+    return jsonify(result), 200
 
 
 @api.route("/inventories/<int:id>", methods=["GET"])
@@ -425,8 +433,13 @@ def delete_inventory(id):
 @api.route("/categories", methods=["GET"])
 @jwt_required()
 def get_categories():
-    categories = db.session.query(Category).all()
-    return jsonify([c.serialize() for c in categories]), 200
+    user_id = get_jwt_identity()
+    inventories = Inventory.query.filter_by(owner_id=user_id).all()
+    inventory_ids = [inv.id_inventory for inv in inventories]
+
+    categories = Category.query.filter(
+        Category.inventories_id.in_(inventory_ids)).all()
+    return jsonify([cat.serialize() for cat in categories]), 200
 
 
 @api.route("/categories/<int:id>", methods=["GET"])
@@ -443,9 +456,15 @@ def get_category(id):
 def create_category():
     data = request.get_json()
     try:
+        required_fields = ["name", "description", "inventories_id"]
+        for field in required_fields:
+            if field not in data:
+                return jsonify({"error": f"{field} is required"}), 400
+
         new_category = Category(
             name=data["name"],
-            description=data["description"]
+            description=data["description"],
+            inventories_id=data["inventories_id"]
         )
         db.session.add(new_category)
         db.session.commit()
@@ -474,7 +493,12 @@ def delete_category(id):
 @api.route("/transactions", methods=["GET"])
 @jwt_required()
 def get_all_transactions():
-    transactions = Transaction.query.all()
+    user_id = get_jwt_identity()
+    inventories = Inventory.query.filter_by(owner_id=user_id).all()
+    inventory_ids = [inv.id_inventory for inv in inventories]
+
+    transactions = Transaction.query.filter(
+        Transaction.inventories_id.in_(inventory_ids)).all()
     return jsonify([t.serialize() for t in transactions]), 200
 
 
@@ -552,28 +576,29 @@ def delete_transaction(id_transaction):
 @api.route("/suppliers", methods=["GET"])
 @jwt_required()
 def get_suppliers():
-    suppliers = db.session.query(Supplier).all()
+    user_id = get_jwt_identity()
+
+    suppliers = Supplier.query.filter_by(owner_id=user_id).all()
+
     return jsonify([s.serialize() for s in suppliers]), 200
 
 
 @api.route("/suppliers", methods=["POST"])
 @jwt_required()
 def add_supplier():
+    user_id = get_jwt_identity()
     data = request.get_json()
-    try:
-        new_supplier = Supplier(
-            name=data["name"],
-            contact_name=data["contact_name"],
-            email=data["email"],
-            phone=data["phone"],
-            address=data["address"]
-        )
-        db.session.add(new_supplier)
-        db.session.commit()
-        return jsonify(new_supplier.serialize()), 201
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"error": str(e)}), 400
+    new_supplier = Supplier(
+        name=data["name"],
+        contact_name=data["contact_name"],
+        email=data["email"],
+        phone=data["phone"],
+        address=data["address"],
+        owner_id=user_id
+    )
+    db.session.add(new_supplier)
+    db.session.commit()
+    return jsonify(new_supplier.serialize()), 201
 
 
 @api.route("/suppliers/<int:id_supplier>", methods=["GET"])
@@ -633,7 +658,12 @@ def delete_supplier(id_supplier):
 @jwt_required()
 def get_products_with_stock():
     try:
-        products = Product.query.all()
+        user_id = get_jwt_identity()
+        inventories = Inventory.query.filter_by(owner_id=user_id).all()
+        inventory_ids = [inv.id_inventory for inv in inventories]
+
+        products = Product.query.filter(
+            Product.inventories_id.in_(inventory_ids)).all()
         result = []
 
         for product in products:
@@ -654,7 +684,7 @@ def get_products_with_stock():
                 "category_id": product.category_id,
                 "inventories_id": product.inventories_id,
             })
-
+        print("resultado ------>", result)
         return jsonify(result), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500

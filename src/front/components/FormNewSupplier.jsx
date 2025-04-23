@@ -40,7 +40,7 @@ const FormNewSupplier = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log("Enviando datos:", formData); 
+      console.log("Enviando datos:", formData);
       await addNewSupplier(formData);
       setFormData({
         name: "",
@@ -64,7 +64,7 @@ const FormNewSupplier = () => {
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ maxWidth: 500, mx: "auto", mt: 4 }}>
-      
+
       <TextField
         fullWidth
         margin="normal"

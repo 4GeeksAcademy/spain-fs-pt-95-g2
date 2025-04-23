@@ -112,6 +112,7 @@ export const useProducts = () => {
 
 
   const fetchProductsWithStock = async () => {
+    setProducts([]);
     setLoading(true);
     setError("");
 
@@ -132,13 +133,7 @@ export const useProducts = () => {
       setLoading(false);
     }
   };
-
-
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-
+  
   return {
     products,
     error,

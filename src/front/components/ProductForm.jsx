@@ -11,18 +11,20 @@ import {
 } from "@mui/material";
 import { useProducts } from "../hooks/useProducts";
 import { useCategories } from "../hooks/useCategories";
+import { useInventories } from "../hooks/useInventories";
 import ModalAddCategory from "./ModalAddCategory";
 
 
 const ProductForm = ({ onSuccess, onCancel }) => {
   const { createProduct, error, setError } = useProducts();
   const { categories, setCategories, createCategory, fetchCategories } = useCategories();
+  const { inventories, loading: inventoriesLoading } = useInventories();
   const [formData, setFormData] = useState({
     name: "",
     price: "",
     image_url: "",
     category_id: "",
-    inventories_id: "1",
+    inventories_id: "",
   });
   const [showCategoryModal, setShowCategoryModal] = useState(false);
 
@@ -80,27 +82,27 @@ const ProductForm = ({ onSuccess, onCancel }) => {
     data.append("file", file);
     data.append("upload_preset", "easyInventory");
     data.append("cloud_name", "dttjh1qaf");
-    try{
+    try {
       const response = await fetch("https://api.cloudinary.com/v1_1/dttjh1qaf/image/upload", {
         method: "POST",
         body: data,
-    });
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error("Cloudinary error", errorData);
-      return
-    }
-    const result = await response.json();
-    const imageURL = result.secure_url;
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Cloudinary error", errorData);
+        return
+      }
+      const result = await response.json();
+      const imageURL = result.secure_url;
 
-    setFormData((prev) => ({
-      ...prev,
-      image_url: imageURL,
-  }));
-} catch (error) {
-  console.error("Error uploading image to Cloudinary", error);
-}
-};
+      setFormData((prev) => ({
+        ...prev,
+        image_url: imageURL,
+      }));
+    } catch (error) {
+      console.error("Error uploading image to Cloudinary", error);
+    }
+  };
 
   return (
     <Box
@@ -138,16 +140,16 @@ const ProductForm = ({ onSuccess, onCancel }) => {
         margin="normal"
         required
       />
-          
-        <input
+
+      <input
         type="file"
         name="image_url"
         className="form-control"
         accept="image/*"
         onChange={handleFileChange}
         required
-        />
-          
+      />
+
 
       <FormControl fullWidth margin="normal" required>
         <InputLabel id="category-label">Category</InputLabel>
@@ -173,6 +175,17 @@ const ProductForm = ({ onSuccess, onCancel }) => {
         onClose={() => setShowCategoryModal(false)}
         onSave={handleModalSave}
       />
+
+      <FormControl fullWidth margin="normal" required>
+        <InputLabel id="inventory-label">Inventory</InputLabel>
+          <Select labelId="inventory-label" name="inventories_id" value={formData.inventories_id}
+            onChange={handleFormChange} label="Inventory">
+            <MenuItem value="">Select an inventory</MenuItem>
+            {inventories.map((inv) => (
+              <MenuItem key={inv.id_inventory} value={inv.id_inventory}>{inv.name}</MenuItem>
+            ))}
+          </Select>
+      </FormControl>
 
       <Box mt={3} display="flex" justifyContent="space-between">
         <Button type="submit" variant="contained" color="primary">
